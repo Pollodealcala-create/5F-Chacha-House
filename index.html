@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>注音圖像學習機 - 修復版</title>
+    <title>注音單音學習機</title>
     <style>
         :root { --bg: #fdfdfd; --accent: #ff7675; --btn-bg: #f7f1e3; }
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; user-select: none; }
@@ -20,8 +20,8 @@
 </head>
 <body>
 
-<h1>ㄅㄆㄇ 圖像聯想機 🎈</h1>
-<p>點一下符號，看圖學注音！</p>
+<h1>ㄅㄆㄇ 清楚單音版 📢</h1>
+<p>點一下符號，聽聽最乾淨的發音！</p>
 
 <div class="grid" id="grid"></div>
 
@@ -35,14 +35,6 @@
 </div>
 
 <script>
-    const phoneticMap = {
-        "ㄅ":"ㄅㄚ", "ㄆ":"ㄆㄚ", "ㄇ":"ㄇㄚ", "ㄈ":"ㄈㄚ", "ㄉ":"ㄉㄜ", "ㄊ":"ㄊㄜ", "ㄋ":"ㄋㄜ", "ㄌ":"ㄌㄜ",
-        "ㄍ":"ㄍㄜ", "ㄎ":"ㄎㄜ", "ㄏ":"ㄏㄜ", "ㄐ":"ㄐㄧ", "ㄑ":"ㄑㄧ", "ㄒ":"ㄒㄧ", "ㄓ":"ㄓ", "ㄔ":"ㄔ",
-        "ㄕ":"ㄕ", "ㄖ":"ㄖ", "ㄗ":"ㄗ", "ㄘ":"ㄘ", "ㄙ":"ㄙ", "ㄚ":"ㄚ", "ㄛ":"ㄛ", "ㄜ":"ㄜ",
-        "ㄝ":"ㄝ", "ㄞ":"ㄞ", "ㄟ":"ㄟ", "ㄠ":"ㄠ", "ㄡ":"ㄡ", "ㄢ":"ㄢ", "ㄣ":"ㄣ", "ㄤ":"ㄤ",
-        "ㄥ":"ㄥ", "ㄦ":"ㄦ", "ㄧ":"ㄧ", "ㄨ":"ㄨ", "ㄩ":"ㄩ"
-    };
-
     const data = {
         "ㄅ": { word: "蘿蔔", img: "https://img.icons8.com/color/400/carrot.png" },
         "ㄆ": { word: "皮球", img: "https://img.icons8.com/color/400/beach-ball.png" },
@@ -88,7 +80,9 @@
     function speak(text) {
         synth.cancel();
         const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'zh-TW'; utter.rate = 0.8; utter.pitch = 1.2;
+        utter.lang = 'zh-TW'; 
+        utter.rate = 0.7; // 慢速朗讀更清晰
+        utter.pitch = 1.0; // 正常的語調
         synth.speak(utter);
     }
 
@@ -96,13 +90,15 @@
         const item = data[symbol];
         if(!item) return;
 
-        const soundEffect = phoneticMap[symbol] || symbol;
         document.getElementById('display-symbol').innerText = symbol;
         document.getElementById('display-image').src = item.img;
         document.getElementById('display-word').innerText = item.word;
         document.getElementById('overlay').style.display = 'flex';
         
-        speak(`${soundEffect}, ${soundEffect}, ${soundEffect}, ${item.word}, ${soundEffect}`);
+        // 朗讀邏輯：[符號] ... [名詞] ... [符號]
+        // 範例：ㄅ ... 蘿蔔 ... ㄅ
+        const textToSpeak = `${symbol}，${item.word}，${symbol}`;
+        speak(textToSpeak);
     }
 
     function closeCard() {
