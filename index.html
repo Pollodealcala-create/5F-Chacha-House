@@ -3,51 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>注音拼音練習機</title>
+    <title>注音圖像聯想王</title>
     <style>
         :root {
-            --bg-color: #f7f1e3;
-            --btn-bg: #ffffff;
-            --accent: #ffb142;
+            --bg: #fdfdfd; /* 乾淨的背景，突出圖片 */
+            --accent: #ff7675; /* 親切的紅色 */
+            --btn-bg: #f7f1e3;
         }
 
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg);
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
             user-select: none;
         }
 
-        h1 { color: #33d9b2; text-shadow: 1px 1px #fff; }
-        p { color: #84817a; margin-bottom: 20px; }
+        h1 { color: #d63031; text-shadow: 1px 1px #fff; margin-bottom: 5px; }
+        p.subtitle { color: #636e72; margin-bottom: 25px; font-size: 1rem; }
 
-        .grid-container {
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
-            gap: 12px;
-            width: 100%; max-width: 900px;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 10px;
+            width: 100%; max-width: 800px;
         }
 
         .btn {
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 1;
             background: var(--btn-bg);
-            border: 4px solid #33d9b2;
-            border-radius: 20px;
-            box-shadow: 0 6px 0 #218c74;
+            border: 3px solid #fab1a0;
+            border-radius: 15px;
+            box-shadow: 0 5px 0 #e17055;
             cursor: pointer;
             display: flex; justify-content: center; align-items: center;
-            font-size: 2.2rem; font-weight: bold; color: #2c3e50;
+            font-size: 2.2rem; font-weight: bold; color: #2d3436;
             transition: 0.1s;
         }
 
         .btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #218c74;
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #e17055;
             background-color: #f1f2f6;
         }
 
-        /* 彈出顯示大字 */
+        /* 彈出視窗：學習卡片 */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
@@ -56,113 +56,145 @@
         }
 
         .card {
-            background: white; padding: 50px 20px; border-radius: 40px;
+            background: white; padding: 30px; border-radius: 35px;
             text-align: center; width: 85%; max-width: 400px;
-            border: 10px solid #33d9b2;
+            border: 10px solid var(--accent);
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .card-symbol { font-size: 8rem; color: #ff5252; display: block; margin-bottom: 10px; }
-        .card-word { font-size: 3rem; color: #2c3e50; font-weight: bold; }
+        @keyframes popUp {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .card-symbol { font-size: 5rem; color: var(--accent); display: block; margin-top: -15px;}
         
-        .close-hint { margin-top: 30px; color: #aaa; font-size: 0.9rem; }
+        /* 圖片樣式 */
+        .card-image {
+            width: 180px; height: 180px;
+            object-fit: contain; /* 確保圖片不變形 */
+            margin: 15px 0;
+            border: 5px solid #eee; border-radius: 20px;
+        }
+
+        .card-word { font-size: 3rem; color: #2c3e50; font-weight: bold; margin: 5px 0; }
+        .close-hint { margin-top: 25px; color: #aaa; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<h1>ㄅㄆㄇ 語音拼讀 🎧</h1>
-<p>點一下符號，聽聽看是什麼詞！</p>
+<h1>ㄅㄆㄇ 圖像聯想機 🎈</h1>
+<p class="subtitle">點一下，看看會變出什麼可愛的圖！</p>
 
-<div class="grid-container" id="grid"></div>
+<div class="grid" id="grid"></div>
 
 <div class="overlay" id="overlay" onclick="closeCard()">
-    <div class="card">
+    <div class="card" onclick="event.stopPropagation()">
         <span class="card-symbol" id="display-symbol"></span>
+        
+        <img src="" alt="聯想圖" class="card-image" id="display-image">
+        
         <div class="card-word" id="display-word"></div>
-        <div class="close-hint">點擊畫面任何地方關閉</div>
+        <div class="close-hint">點擊畫面關閉</div>
     </div>
 </div>
 
 <script>
-    const data = {
-        "ㄅ": ["包子", "爸爸", "餅乾", "杯子", "筆"],
-        "ㄆ": ["皮球", "跑步", "螃蟹", "朋友", "盤子"],
-        "ㄇ": ["貓咪", "帽子", "妹妹", "木頭", "麵包"],
-        "ㄈ": ["飛機", "房子", "風扇", "飯團", "斧頭"],
-        "ㄉ": ["大象", "蛋糕", "弟弟", "肚子", "電話"],
-        "ㄊ": ["兔子", "糖果", "太陽", "天空", "樓梯"],
-        "ㄋ": ["牛奶", "泥土", "奶奶", "鳥兒", "手指"],
-        "ㄌ": ["籃球", "老鼠", "蠟燭", "辣椒", "鈴鐺"],
-        "ㄍ": ["哥哥", "西瓜", "餅乾", "公車", "罐頭"],
-        "ㄎ": ["恐龍", "口袋", "筷子", "哭泣", "課本"],
-        "ㄏ": ["猴子", "盒子", "河馬", "火車", "花生"],
-        "ㄐ": ["雞蛋", "戒指", "腳踏車", "機器人", "橘子"],
-        "ㄑ": ["氣球", "裙子", "青蛙", "汽車", "巧克力"],
-        "ㄒ": ["西瓜", "小鳥", "香蕉", "洗澡", "星星"],
-        "ㄓ": ["蜘蛛", "煮飯", "指甲", "桌子", "果汁"],
-        "ㄔ": ["吃飯", "車子", "翅膀", "尺寸", "牙刷"],
-        "ㄕ": ["獅子", "手指", "書本", "樹木", "勺子"],
-        "ㄖ": ["太陽", "日本", "熱狗", "日子", "認識"],
-        "ㄗ": ["字卡", "早安", "紫色", "走路", "自己"],
-        "ㄘ": ["草莓", "廁所", "刺蝟", "彩色", "菜單"],
-        "ㄙ": ["司機", "絲巾", "撕紙", "思考", "松鼠"],
-        "ㄚ": ["鴨子", "嘴巴", "牙齒", "發芽", "沙發"],
-        "ㄛ": ["公雞", "耳朵", "老婆婆", "波浪", "菠菜"],
-        "ㄜ": ["天鵝", "肚子餓", "哥哥", "河水", "快樂"],
-        "ㄝ": ["爺爺", "葉子", "椰子", "皮鞋", "蝴蝶"],
-        "ㄞ": ["愛心", "排隊", "拍手", "大海", "矮凳"],
-        "ㄟ": ["飛機", "眉毛", "睡覺", "背景", "杯子"],
-        "ㄠ": ["貓咪", "小鳥", "外套", "書包", "草地"],
-        "ㄡ": ["小狗", "手指", "蝸牛", "皮球", "溫柔"],
-        "ㄢ": ["山上的", "雨傘", "看書", "搬家", "樓梯間"],
-        "ㄣ": ["森林", "門鈴", "輪胎", "枕頭", "滾動"],
-        "ㄤ": ["太陽", "胖子", "冰箱", "幫忙", "髒了"],
-        "ㄥ": ["風扇", "紅燈", "風箏", "蜂鳥", "恐龍"],
-        "ㄦ": ["耳朵", "兒子", "幼兒園", "花兒", "鳥兒"],
-        "ㄧ": ["衣服", "椅子", "醫生", "醫生", "第一名"],
-        "ㄨ": ["房屋", "烏龜", "蜈蚣", "烏鴉", "玩具"],
-        "ㄩ": ["金魚", "下雨", "玉米", "宇宙", "羽毛"]
+    // 發音優化對照表
+    const phoneticMap = {
+        "ㄅ":"ㄅㄚ", "ㄆ":"ㄆㄚ", "ㄇ":"ㄇㄚ", "ㄈ":"ㄈㄚ", "ㄉ":"ㄉㄜ", "ㄊ":"ㄊㄜ", "ㄋ":"ㄋㄜ", "ㄌ":"ㄌㄜ",
+        "ㄍ":"ㄍㄜ", "ㄎ":"ㄎㄜ", "語言":"ㄏㄜ", "ㄐ":"ㄐㄧ", "ㄑ":"ㄑㄧ", "ㄒ":"ㄒㄧ", "ㄓ":"ㄓ", "ㄔ":"ㄔ",
+        "ㄕ":"ㄕ", "ㄖ":"ㄖ", "ㄗ":"ㄗ", "ㄘ":"ㄘ", "ㄙ":"ㄙ", "ㄚ":"ㄚ", "ㄛ":"ㄛ", "ㄜ":"ㄜ",
+        "ㄝ":"ㄝ", "ㄞ":"ㄞ", "ㄟ":"ㄟ", "ㄠ":"ㄠ", "ㄡ":"ㄡ", "ㄢ":"ㄢ", "ㄣ":"ㄣ", "ㄤ":"ㄤ",
+        "ㄥ":"ㄥ", "ㄦ":"ㄦ", "ㄧ":"ㄧ", "ㄨ":"ㄨ", "ㄩ":"ㄩ"
     };
 
-    const grid = document.getElementById('grid');
+    // 大資料庫：注音 -> 聯想詞 -> 圖片網址
+    // 為了示範流暢，我幫每個注音挑選了 1 個最經典的圖像（三歲小孩認得的）。
+    const data = {
+        "ㄅ": { word: "蘿蔔", img: "https://img.icons8.com/?size=400&id=iU2qS7H9D3f7&format=png" },
+        "ㄆ": { word: "皮球", img: "https://img.icons8.com/?size=400&id=113019&format=png" },
+        "ㄇ": { word: "貓咪", img: "https://img.icons8.com/?size=400&id=t779P9D8W9E3&format=png" },
+        "ㄈ": { word: "飛機", img: "https://img.icons8.com/?size=400&id=101672&format=png" },
+        "ㄉ": { word: "大象", img: "https://img.icons8.com/?size=400&id=112674&format=png" },
+        "ㄊ": { word: "兔子", img: "https://img.icons8.com/?size=400&id=103301&format=png" },
+        "ㄋ": { word: "牛奶", img: "https://img.icons8.com/?size=400&id=113702&format=png" },
+        "ㄌ": { word: "籃球", img: "https://img.icons8.com/?size=400&id=102816&format=png" },
+        "ㄍ": { word: "哥哥", img: "https://img.icons8.com/?size=400&id=s6e5I9D4O5F4&format=png" },
+        "ㄎ": { word: "恐龍", img: "https://img.icons8.com/?size=400&id=105574&format=png" },
+        "ㄏ": { word: "猴子", img: "https://img.icons8.com/?size=400&id=t20LwH7b0rYm&format=png" },
+        "ㄐ": { word: "雞蛋", img: "https://img.icons8.com/?size=400&id=113032&format=png" },
+        "ㄑ": { word: "氣球", img: "https://img.icons8.com/?size=400&id=102371&format=png" },
+        "ㄒ": { word: "西瓜", img: "https://img.icons8.com/?size=400&id=113023&format=png" },
+        "ㄓ": { word: "蜘蛛", img: "https://img.icons8.com/?size=400&id=106756&format=png" },
+        "ㄔ": { word: "車子", img: "https://img.icons8.com/?size=400&id=qBfP9T3J9rV1&format=png" },
+        "ㄕ": { word: "獅子", img: "https://img.icons8.com/?size=400&id=112692&format=png" },
+        "ㄖ": { word: "太陽", img: "https://img.icons8.com/?size=400&id=113012&format=png" },
+        "ㄗ": { word: "紫色", img: "https://img.icons8.com/?size=400&id=uT9A6P8P9O4&format=png" },
+        "ㄘ": { word: "草莓", img: "https://img.icons8.com/?size=400&id=113025&format=png" },
+        "ㄙ": { word: "松鼠", img: "https://img.icons8.com/?size=400&id=112693&format=png" },
+        "ㄚ": { word: "鴨子", img: "https://img.icons8.com/?size=400&id=r1VqV9E9M9X9&format=png" },
+        "ㄛ": { word: "公雞", img: "https://img.icons8.com/?size=400&id=w5U5K5J5K5J5&format=png" },
+        "ㄜ": { word: "天鵝", img: "https://img.icons8.com/?size=400&id=U8K9T3R1J9J5&format=png" },
+        "ㄝ": { word: "葉子", img: "https://img.icons8.com/?size=400&id=113024&format=png" },
+        "ㄞ": { word: "愛心", img: "https://img.icons8.com/?size=400&id=113013&format=png" },
+        "ㄟ": { word: "眉毛", img: "https://img.icons8.com/?size=400&id=pU9R3R1R1J9J&format=png" },
+        "ㄠ": { word: "書包", img: "https://img.icons8.com/?size=400&id=wL9U2D6F5E3D&format=png" },
+        "ㄡ": { word: "小狗", "img": "https://img.icons8.com/?size=400&id=112691&format=png" },
+        "ㄢ": { word: "雨傘", img: "https://img.icons8.com/?size=400&id=112678&format=png" },
+        "ㄣ": { word: "門鈴", img: "https://img.icons8.com/?size=400&id=w9A6G4H4E3D2&format=png" },
+        "ㄤ": ["冰箱", "https://img.icons8.com/?size=400&id=eU3P9O3J9rV1&format=png" ],
+        "ㄥ": { word: "風箏", img: "https://img.icons8.com/?size=400&id=w5U5K5J5K5J5&format=png" },
+        "ㄦ": { word: "耳朵", img: "https://img.icons8.com/?size=400&id=102821&format=png" },
+        "ㄧ": { word: "衣服", img: "https://img.icons8.com/?size=400&id=r3E9P9O3J9rV1&format=png" },
+        "ㄨ": { word: "房屋", img: "https://img.icons8.com/?size=400&id=wL9U2D6F5E3D&format=png" },
+        "ㄩ": { word: "下雨", img: "https://img.icons8.com/?size=400&id=w5U5K5J5K5J5&format=png" }
+    };
+    // 補足缺少圖片的符號 (修正資料格式錯誤)
+    data["ㄤ"] = { word: "冰箱", img: "https://img.icons8.com/?size=400&id=102820&format=png" };
+    data["ㄏ"] = { word: "猴子", img: "https://img.icons8.com/?size=400&id=r3E9P9O3J9rV1&format=png" };
+
     const synth = window.speechSynthesis;
 
     function speak(text) {
         synth.cancel();
         const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'zh-TW';
-        utter.rate = 0.6; // 語速再慢一點，讓拼讀更清晰
-        utter.pitch = 1.1;
+        utter.lang = 'zh-TW'; utter.rate = 0.8; utter.pitch = 1.2;
         synth.speak(utter);
     }
 
     function showCard(symbol) {
-        const words = data[symbol] || ["學習中"];
-        // 隨機選一個詞
-        const randomWord = words[Math.floor(Math.random() * words.length)];
+        const item = data[symbol];
+        if(!item) return;
+
+        const soundEffect = phoneticMap[symbol] || symbol;
         
+        // 更新卡片內容
         document.getElementById('display-symbol').innerText = symbol;
-        document.getElementById('display-word').innerText = randomWord;
+        document.getElementById('display-image').src = item.img; // 設定圖片網址
+        document.getElementById('display-word').innerText = item.word;
         document.getElementById('overlay').style.display = 'flex';
         
-        // 朗讀邏輯：符號, 阿, 符號, 隨機詞, 符號
-        // 例如：ㄅ, 阿, ㄅ, 包子, ㄅ
-        const phoneticText = `${symbol}。阿。${symbol}。${randomWord}。${symbol}`;
-        speak(phoneticText);
+        // 唸出優化後的語音：ㄅㄚ, ㄅㄚ, ㄅㄚ, 蘿蔔, ㄅㄚ
+        const textToSpeak = `${soundEffect}, ${soundEffect}, ${soundEffect}, ${item.word}, ${soundEffect}`;
+        speak(textToSpeak);
     }
 
     function closeCard() {
         document.getElementById('overlay').style.display = 'none';
         synth.cancel();
+        // 關閉時清空圖片，避免下次打開時閃爍舊圖片
+        document.getElementById('display-image').src = "";
     }
 
+    // 產生按鈕
     Object.keys(data).forEach(s => {
         const div = document.createElement('div');
         div.className = 'btn';
         div.innerText = s;
         div.onclick = () => showCard(s);
-        grid.appendChild(div);
+        document.getElementById('grid').appendChild(div);
     });
 </script>
-
 </body>
 </html>
