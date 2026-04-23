@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ㄅㄆㄇ 圖像百科 🎁</title>
+    <title>ㄅㄆㄇ 實物百科 終極修正版</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; user-select: none; }
         .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 850px; margin: 0 auto; }
@@ -19,79 +19,102 @@
             background: rgba(0,0,0,0.92); display: none; flex-direction: column; 
             align-items: center; justify-content: center; color: #fff; z-index: 999;
         }
-        img { width: 260px; height: 260px; margin: 20px; border-radius: 20px; background: white; padding: 15px; object-fit: contain; }
-        .word { font-size: 60px; font-weight: bold; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+        #p-img { width: 260px; height: 260px; margin: 20px; border-radius: 20px; background: white; padding: 15px; object-fit: contain; }
+        #p-emoji { font-size: 160px; display: none; margin: 20px; }
+        .word { font-size: 65px; font-weight: bold; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
     </style>
 </head>
 <body>
 
-    <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🎁</h1>
-    <p>名詞已全數校正，將螢火蟲改成蜜蜂囉！</p>
+    <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🥇</h1>
+    <p>蜜蜂、魚兒、羽毛、帽子全數修正！絕對有圖！</p>
 
     <div class="container" id="main"></div>
 
     <div id="pop" onclick="this.style.display='none'; window.speechSynthesis.cancel();">
         <div id="p-symbol" style="font-size: 40px; color: #ffadad; margin-bottom: 5px;"></div>
-        <img id="p-img" src="">
+        <img id="p-img" src="" onerror="showEmojiBackup()">
+        <div id="p-emoji"></div>
         <div id="p-word" class="word"></div>
         <p style="margin-top:20px; color:#ccc;">點擊畫面關閉</p>
     </div>
 
 <script>
+    var currentEmoji = "❓";
+    
+    // 每個名詞都配有 n(名字), g(圖片關鍵字), e(備援 Emoji)
     var library = {
-        "ㄅ": [{n:"蘿蔔",g:"carrot"},{n:"包子",g:"steamed-bun"},{n:"杯子",g:"cup"}],
-        "ㄆ": [{n:"皮球",g:"beach-ball"},{n:"螃蟹",g:"crab"},{n:"葡萄",g:"grapes"}],
-        "ㄇ": [{n:"貓咪",g:"cat"},{n:"帽子",g:"hat"},{n:"麵包",g:"bread"}],
-        "ㄈ": [{n:"飛機",g:"airplane"},{n:"房子",g:"home"},{n:"風扇",g:"fan"}],
-        "ㄉ": [{n:"大象",g:"elephant"},{n:"蛋糕",g:"cake"},{n:"燈泡",g:"light-bulb"}],
-        "ㄊ": [{n:"兔子",g:"rabbit"},{n:"糖果",g:"candy"},{n:"太陽",g:"sun"}],
-        "ㄋ": [{n:"牛奶",g:"milk-bottle"},{n:"鳥兒",g:"bird"},{n:"檸檬",g:"lemon"}],
-        "ㄌ": [{n:"籃球",g:"basketball"},{n:"老鼠",g:"mouse"},{n:"辣椒",g:"chili-pepper"}],
-        "ㄍ": [{n:"西瓜",g:"watermelon"},{n:"公車",g:"bus"},{n:"鋼琴",g:"piano"}],
-        "ㄎ": [{n:"恐龍",g:"dinosaur"},{n:"口袋",g:"pocket"},{n:"筷子",g:"chopsticks"}],
-        "ㄏ": [{n:"猴子",g:"monkey"},{n:"河馬",g:"hippopotamus"},{n:"火車",g:"train"}],
-        "ㄐ": [{n:"雞蛋",g:"eggs"},{n:"機器人",g:"robot"},{n:"橘子",g:"orange"}],
-        "ㄑ": [{n:"氣球",g:"balloons"},{n:"青蛙",g:"frog"},{n:"汽車",g:"car"}],
-        "ㄒ": [{n:"香蕉",g:"banana"},{n:"小鳥",g:"bird"},{n:"洗澡盆",g:"bathtub"}],
-        "ㄓ": [{n:"時鐘",g:"clock"},{n:"蜘蛛",g:"spider"},{n:"桌子",g:"table"}],
-        "ㄔ": [{n:"車子",g:"car"},{n:"城堡",g:"castle"},{n:"翅膀",g:"wings"}],
-        "莊": [{n:"獅子",g:"lion"},{n:"手指",g:"hand"},{n:"書本",g:"book"}],
-        "ㄖ": [{n:"熱狗",g:"hot-dog"},{n:"日曆",g:"calendar"},{n:"肉乾",g:"steak"}],
-        "ㄗ": [{n:"橘子",g:"orange"},{n:"自行車",g:"bicycle"},{n:"粽子",g:"rice-dumplings"}],
-        "ㄘ": [{n:"草莓",g:"strawberry"},{n:"彩虹",g:"rainbow"},{n:"廁所",g:"toilet"}],
-        "ㄙ": [{n:"松鼠",g:"squirrel"},{n:"絲巾",g:"scarf"},{n:"掃帚",g:"broom"}],
-        "ㄚ": [{n:"鴨子",g:"duck"},{n:"牙刷",g:"toothbrush"},{n:"沙發",g:"sofa"}],
-        "ㄛ": [{n:"波浪",g:"water-wave"},{n:"菠菜",g:"spinach"},{n:"鳥窩",g:"bird-nest"}],
-        "ㄜ": [{n:"天鵝",g:"swan"},{n:"可樂",g:"cola"},{n:"惡魔",g:"devil"}],
-        "ㄝ": [{n:"葉子",g:"leaf"},{n:"椰子",g:"coconut"},{n:"靴子",g:"boot"}],
-        "ㄞ": [{n:"白菜",g:"cabbage"},{n:"大海",g:"sea-waves"},{n:"奶瓶",g:"baby-bottle"}],
-        "ㄟ": [{n:"杯子",g:"cup"},{n:"飛機",g:"airplane"},{n:"眉毛",g:"eyebrow"}],
-        "ㄠ": [{n:"書包",g:"school-bag"},{n:"貓咪",g:"cat"},{n:"外套",g:"jacket"}],
-        "ㄡ": [{n:"小狗",g:"dog"},{n:"蝸牛",g:"snail"},{n:"皮球",g:"beach-ball"}],
-        "ㄢ": [{n:"雨傘",g:"umbrella"},{n:"搬運車",g:"truck"},{n:"看書",g:"book"}],
-        "ㄣ": [{n:"門鈴",g:"doorbell"},{n:"森林",g:"forest"},{n:"輪胎",g:"wheel"}],
-        "ㄤ": [{n:"鋼琴",g:"piano"},{n:"冰箱",g:"fridge"},{n:"太陽",g:"sun"}],
-        "ㄥ": [{n:"時鐘",g:"clock"},{n:"紅燈",g:"traffic-light"},{n:"風箏",g:"kite"}],
-        "ㄦ": [{n:"耳朵",g:"ear"},{n:"兒子",g:"boy"},{n:"馬兒",g:"horse"}],
-        "ㄧ": [{n:"衣服",g:"t-shirt"},{n:"椅子",g:"chair"},{n:"蜜蜂",g:"bee"}], // 修正：螢火蟲換蜜蜂
-        "ㄨ": [{n:"屋子",g:"home"},{n:"烏龜",g:"turtle"},{n:"玩具車",g:"toy-car"}],
-        "ㄩ": [{n:"魚兒",g:"goldfish"},{n:"玉米",g:"corn"},{n:"羽毛",g:"feather"}]
+        "ㄅ": [{n:"蘿蔔",g:"carrot",e:"🥕"},{n:"包子",g:"steamed-bun",e:"🥟"},{n:"杯子",g:"cup",e:"🥛"}],
+        "ㄆ": [{n:"皮球",g:"beach-ball",e:"⚽"},{n:"螃蟹",g:"crab",e:"🦀"},{n:"葡萄",g:"grapes",e:"🍇"}],
+        "ㄇ": [{n:"貓咪",g:"cat",e:"🐱"},{n:"帽子",g:"winter-hat",e:"👒"},{n:"麵包",g:"bread",e:"🍞"}],
+        "ㄈ": [{n:"飛機",g:"airplane",e:"✈️"},{n:"房子",g:"home",e:"🏠"},{n:"風扇",g:"fan",e:"🌀"}],
+        "ㄉ": [{n:"大象",g:"elephant",e:"🐘"},{n:"蛋糕",g:"cake",e:"🎂"},{n:"燈泡",g:"light-bulb",e:"💡"}],
+        "ㄊ": [{n:"兔子",g:"rabbit",e:"🐰"},{n:"糖果",g:"candy",e:"🍬"},{n:"太陽",g:"sun",e:"☀️"}],
+        "ㄋ": [{n:"牛奶",g:"milk-bottle",e:"🥛"},{n:"鳥兒",g:"bird",e:"🐦"},{n:"檸檬",g:"lemon",e:"🍋"}],
+        "ㄌ": [{n:"籃球",g:"basketball",e:"🏀"},{n:"老鼠",g:"mouse",e:"🐭"},{n:"辣椒",g:"chili-pepper",e:"🌶️"}],
+        "ㄍ": [{n:"西瓜",g:"watermelon",e:"🍉"},{n:"公車",g:"bus",e:"🚌"},{n:"鋼琴",g:"piano",e:"🎹"}],
+        "ㄎ": [{n:"恐龍",g:"dinosaur",e:"🦖"},{n:"口袋",g:"pocket",e:"👖"},{n:"筷子",g:"chopsticks",e:"🥢"}],
+        "ㄏ": [{n:"猴子",g:"monkey",e:"🐒"},{n:"河馬",g:"hippopotamus",e:"🦛"},{n:"火車",g:"train",e:"🚂"}],
+        "ㄐ": [{n:"雞蛋",g:"eggs",e:"🥚"},{n:"機器人",g:"robot",e:"🤖"},{n:"橘子",g:"orange",e:"🍊"}],
+        "ㄑ": [{n:"氣球",g:"balloons",e:"🎈"},{n:"青蛙",g:"frog",e:"🐸"},{n:"汽車",g:"car",e:"🚗"}],
+        "ㄒ": [{n:"香蕉",g:"banana",e:"🍌"},{n:"小鳥",g:"bird",e:"🐦"},{n:"洗澡盆",g:"bathtub",e:"🛁"}],
+        "ㄓ": [{n:"時鐘",g:"clock",e:"⏰"},{n:"蜘蛛",g:"spider",e:"🕷️"},{n:"桌子",g:"table",e:"🪑"}],
+        "ㄔ": [{n:"車子",g:"car",e:"🚗"},{n:"城堡",g:"castle",e:"🏰"},{n:"翅膀",g:"wings",e:"👼"}],
+        "ㄕ": [{n:"獅子",g:"lion",e:"🦁"},{n:"手指",g:"hand",e:"🖐️"},{n:"書本",g:"book",e:"📖"}],
+        "ㄖ": [{n:"熱狗",g:"hot-dog",e:"🌭"},{n:"日曆",g:"calendar",e:"📅"},{n:"肉乾",g:"steak",e:"🥩"}],
+        "ㄗ": [{n:"橘子",g:"orange",e:"🍊"},{n:"自行車",g:"bicycle",e:"🚲"},{n:"粽子",g:"rice-dumplings",e:"🍙"}],
+        "ㄘ": [{n:"草莓",g:"strawberry",e:"🍓"},{n:"彩虹",g:"rainbow",e:"🌈"},{n:"廁所",g:"toilet",e:"🚽"}],
+        "ㄙ": [{n:"松鼠",g:"squirrel",e:"🐿️"},{n:"絲巾",g:"scarf",e:"🧣"},{n:"掃帚",g:"broom",e:"🧹"}],
+        "ㄚ": [{n:"鴨子",g:"duck",e:"🦆"},{n:"牙刷",g:"toothbrush",e:"🪥"},{n:"沙發",g:"sofa",e:"🛋️"}],
+        "ㄛ": [{n:"波浪",g:"water-wave",e:"🌊"},{n:"菠菜",g:"spinach",e:"🥬"},{n:"鳥窩",g:"bird-nest",e:"🪹"}],
+        "ㄜ": [{n:"天鵝",g:"swan",e:"🦢"},{n:"可樂",g:"cola",e:"🥤"},{n:"惡魔",g:"devil",e:"😈"}],
+        "ㄝ": [{n:"葉子",g:"leaf",e:"🍃"},{n:"椰子",g:"coconut",e:"🥥"},{n:"靴子",g:"boot",e:"🥾"}],
+        "ㄞ": [{n:"白菜",g:"cabbage",e:"🥬"},{n:"大海",g:"sea-waves",e:"🌊"},{n:"奶瓶",g:"baby-bottle",e:"🍼"}],
+        "ㄟ": [{n:"杯子",g:"cup",e:"🥛"},{n:"飛機",g:"airplane",e:"✈️"},{n:"貝殼",g:"seashell",e:"🐚"}],
+        "ㄠ": [{n:"書包",g:"school-bag",e:"🎒"},{n:"貓咪",g:"cat",e:"🐱"},{n:"外套",g:"jacket",e:"🧥"}],
+        "ㄡ": [{n:"小狗",g:"dog",e:"🐶"},{n:"蝸牛",g:"snail",e:"🐌"},{n:"皮球",g:"beach-ball",e:"⚽"}],
+        "ㄢ": [{n:"雨傘",g:"umbrella",e:"☂️"},{n:"貨車",g:"truck",e:"🚚"},{n:"書本",g:"book",e:"📖"}],
+        "ㄣ": [{n:"門鈴",g:"doorbell",e:"🔔"},{n:"森林",g:"forest",e:"🌳"},{n:"輪胎",g:"wheel",e:"🛞"}],
+        "ㄤ": [{n:"鋼琴",g:"piano",e:"🎹"},{n:"冰箱",g:"fridge",e:"🧊"},{n:"太陽",g:"sun",e:"☀️"}],
+        "ㄥ": [{n:"時鐘",g:"clock",e:"⏰"},{n:"紅燈",g:"traffic-light",e:"🔴"},{n:"風箏",g:"kite",e:"🪁"}],
+        "ㄦ": [{n:"耳朵",g:"ear",e:"👂"},{n:"兒子",g:"boy",e:"👦"},{n:"馬兒",g:"horse",e:"🐎"}],
+        "ㄧ": [{n:"衣服",g:"t-shirt",e:"👕"},{n:"椅子",g:"chair",e:"🪑"},{n:"蜜蜂",g:"bee",e:"🐝"}],
+        "ㄨ": [{n:"屋子",g:"home",e:"🏠"},{n:"烏龜",g:"turtle",e:"🐢"},{n:"玩具車",g:"toy-car",e:"🏎️"}],
+        "ㄩ": [{n:"魚兒",g:"fish",e:"🐟"},{n:"玉米",g:"corn",e:"🌽"},{n:"羽毛",g:"feather",e:"🪶"}]
     };
 
+    function showEmojiBackup() {
+        document.getElementById('p-img').style.display = 'none';
+        var em = document.getElementById('p-emoji');
+        em.style.display = 'block';
+        em.innerText = currentEmoji;
+    }
+
     var bopomofos = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
-    var container = document.getElementById('main');
+    var gBody = document.getElementById('main');
 
     window.onload = function() {
         bopomofos.forEach(function(s) {
-            var div = document.createElement('div');
-            div.className = 'box';
-            div.innerText = s;
-            div.onclick = function() {
+            var box = document.createElement('div');
+            box.className = 'box';
+            box.innerText = s;
+            box.onclick = function() {
                 var choices = library[s];
                 var pick = choices[Math.floor(Math.random() * choices.length)];
+                
+                currentEmoji = pick.e;
                 document.getElementById('p-symbol').innerText = s;
-                document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + pick.g + ".png";
                 document.getElementById('p-word').innerText = pick.n;
+                
+                var img = document.getElementById('p-img');
+                var em = document.getElementById('p-emoji');
+                
+                img.style.display = 'block';
+                em.style.display = 'none';
+                
+                // 使用絕對穩定的網址連結 + 強制刷新
+                img.src = "https://img.icons8.com/color/400/" + pick.g + ".png?t=" + new Date().getTime();
+                
                 document.getElementById('pop').style.display = 'flex';
                 
                 window.speechSynthesis.cancel();
@@ -100,7 +123,7 @@
                 window.speechSynthesis.speak(msg);
                 window.speechSynthesis.speak(msg);
             };
-            container.appendChild(div);
+            gBody.appendChild(box);
         });
     };
 </script>
