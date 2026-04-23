@@ -26,23 +26,23 @@
 <body>
 
     <h1 style="color:#d63031">ㄅㄆㄇ 隨機圖像王 🎁</h1>
-    <p>名詞修正完畢！點點看驚喜喔！</p>
+    <p>全圖庫已校正！飛機現在正確囉！</p>
 
     <div class="container" id="main"></div>
 
     <div id="pop" onclick="this.style.display='none'; window.speechSynthesis.cancel();">
         <div id="p-symbol" style="font-size: 40px; color: #ffadad;"></div>
-        <img id="p-img" src="" onerror="this.src='https://img.icons8.com/color/400/idea.png'">
+        <img id="p-img" src="" onerror="this.src='https://img.icons8.com/color/400/kawaii-ice-cream.png'">
         <div id="p-word" class="word"></div>
         <p style="margin-top:30px; color:#ccc;">點擊畫面關閉</p>
     </div>
 
 <script>
     var library = {
-        "ㄅ": [{n:"蘿蔔",g:"carrot"},{n:"包子",g:"baozi"},{n:"杯子",g:"cup"}],
-        "ㄆ": [{n:"皮球",g:"ball-point-pen"},{n:"螃蟹",g:"crab"},{n:"跑步",g:"running"}],
+        "ㄅ": [{n:"蘿蔔",g:"carrot"},{n:"包子",g:"steamed-bun"},{n:"杯子",g:"cup"}],
+        "ㄆ": [{n:"皮球",g:"beach-ball"},{n:"螃蟹",g:"crab"},{n:"跑步",g:"running"}],
         "ㄇ": [{n:"貓咪",g:"cat"},{n:"帽子",g:"hat"},{n:"牛奶",g:"milk-bottle"}],
-        "ㄈ": [{n:"飛機",g:"airplane"},{n:"房子",g:"home"},{n:"風扇",g:"fan"}],
+        "ㄈ": [{n:"飛機",g:"airplane-take-off"},{n:"房子",g:"home"},{n:"風扇",g:"fan"}],
         "ㄉ": [{n:"大象",g:"elephant"},{n:"蛋糕",g:"cake"},{n:"弟弟",g:"boy"}],
         "ㄊ": [{n:"兔子",g:"rabbit"},{n:"糖果",g:"candy"},{n:"太陽",g:"sun"}],
         "ㄋ": [{n:"牛奶",g:"milk-bottle"},{n:"鳥兒",g:"bird"},{n:"奶奶",g:"old-woman"}],
@@ -51,7 +51,7 @@
         "ㄎ": [{n:"恐龍",g:"dinosaur"},{n:"口袋",g:"pocket"},{n:"筷子",g:"chopsticks"}],
         "ㄏ": [{n:"猴子",g:"monkey"},{n:"河馬",g:"hippopotamus"},{n:"火車",g:"train"}],
         "ㄐ": [{n:"雞蛋",g:"eggs"},{n:"機器人",g:"robot"},{n:"橘子",g:"orange"}],
-        "ㄑ": [{n:"氣球",g:"balloons"},{n:"青蛙",g:"frog"},{n:"汽車",g:"car"}],
+        "ㄑ": [{n:"氣球",g:"hot-air-balloon"},{n:"青蛙",g:"frog"},{n:"汽車",g:"car"}],
         "ㄒ": [{n:"西瓜",g:"watermelon"},{n:"小鳥",g:"bird"},{n:"洗澡",g:"bathtub"}],
         "ㄓ": [{n:"蜘蛛",g:"spider"},{n:"桌子",g:"table"},{n:"煮飯",g:"cooking"}],
         "ㄔ": [{n:"車子",g:"car"},{n:"吃飯",g:"eating"},{n:"翅膀",g:"wings"}],
@@ -89,16 +89,13 @@
             div.onclick = function() {
                 var choices = library[s];
                 var pick = choices[Math.floor(Math.random() * choices.length)];
-                
                 document.getElementById('p-symbol').innerText = s;
                 document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + pick.g + ".png";
                 document.getElementById('p-word').innerText = pick.n;
                 document.getElementById('pop').style.display = 'flex';
-                
                 window.speechSynthesis.cancel();
                 var msg = new SpeechSynthesisUtterance(pick.n);
-                msg.lang = 'zh-TW';
-                msg.rate = 0.7;
+                msg.lang = 'zh-TW'; msg.rate = 0.7;
                 window.speechSynthesis.speak(msg);
                 window.speechSynthesis.speak(msg);
             };
