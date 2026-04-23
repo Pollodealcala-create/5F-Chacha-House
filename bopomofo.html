@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>幼兒趣味注音符號學習</title>
+    <style>
+        :root {
+            --bg-color: #f0f9ff;
+            --card-color: #ffffff;
+            --accent-color: #ff6b6b;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none; /* 防止長按文字被選取 */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #4a90e2;
+            font-size: 2rem;
+            margin: 10px 0;
+            text-shadow: 2px 2px #fff;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .btn {
+            aspect-ratio: 1 / 1.2;
+            background: var(--card-color);
+            border: 4px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 6px 0 #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.1s ease;
+            position: relative;
+        }
+
+        /* 點擊時的下沉效果 */
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #cbd5e1;
+            border-color: #4a90e2;
+        }
+
+        .symbol {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        /* 不同種類符號的顏色裝飾 */
+        .btn:nth-child(4n+1) { border-color: #ffadad; }
+        .btn:nth-child(4n+2) { border-color: #ffd6a5; }
+        .btn:nth-child(4n+3) { border-color: #caffbf; }
+        .btn:nth-child(4n+4) { border-color: #a0c4ff; }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 30px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ㄅㄆㄇ 點點樂 🎵</h1>
+    <p>點擊符號就會有聲音喔！</p>
+</header>
+
+<div class="grid-container" id="symbols-grid">
+    </div>
+
+<footer>
+    適合三歲寶貝的初次學習
+</footer>
+
+<script>
+    const bopomofo = [
+        "ㄅ", "ㄆ", "ㄇ", "ㄈ", "ㄉ", "ㄊ", "ㄋ", "ㄌ",
+        "ㄍ", "ㄎ", "ㄏ", "ㄐ", "ㄑ", "ㄒ", "ㄓ", "ㄔ",
+        "ㄕ", "ㄖ", "ㄗ", "ㄘ", "ㄙ", "ㄚ", "ㄛ", "ㄜ",
+        "ㄝ", "ㄞ", "ㄟ", "ㄠ", "ㄡ", "ㄢ", "ㄣ", "ㄤ",
+        "ㄥ", "ㄦ", "ㄧ", "ㄨ", "ㄩ"
+    ];
+
+    const grid = document.getElementById('symbols-grid');
+
+    // 建立語音物件
+    const synth = window.speechSynthesis;
+
+    function speak(text) {
+        // 先取消目前正在播放的聲音，避免重疊
+        synth.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-TW'; // 設定為台灣中文
+        utterance.rate = 0.8;      // 語速稍慢一點，適合小孩聽清
+        utterance.pitch = 1.2;     // 音調稍微調高，聽起來比較親切
+        synth.speak(utterance);
+    }
+
+    // 生成按鈕
+    bopomofo.forEach(item => {
+        const button = document.createElement('div');
+        button.className = 'btn';
+        button.innerHTML = `<span class="symbol">${item}</span>`;
+        
+        // 點擊事件
+        button.onclick = () => {
+            speak(item);
+            
+            // 加入簡單的小動畫效果
+            button.style.backgroundColor = '#e0f2fe';
+            setTimeout(() => {
+                button.style.backgroundColor = '#ffffff';
+            }, 200);
+        };
+
+        grid.appendChild(button);
+    });
+</script>
+
+</body>
+</html>
