@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ㄅㄆㄇ 隨機圖像王</title>
+    <title>ㄅㄆㄇ 實物百科</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; user-select: none; }
         .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 850px; margin: 0 auto; }
@@ -19,62 +19,62 @@
             background: rgba(0,0,0,0.92); display: none; flex-direction: column; 
             align-items: center; justify-content: center; color: #fff; z-index: 999;
         }
-        img { width: 250px; height: 250px; margin: 20px; border-radius: 20px; background: white; padding: 10px; object-fit: contain; }
+        img { width: 260px; height: 260px; margin: 20px; border-radius: 20px; background: white; padding: 15px; object-fit: contain; }
         .word { font-size: 60px; font-weight: bold; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
     </style>
 </head>
 <body>
 
-    <h1 style="color:#d63031">ㄅㄆㄇ 圖像學習 🎁</h1>
-    <p>全圖庫 111 個項目已校對，點點看驚喜！</p>
+    <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🎁</h1>
+    <p>移除破音字，名詞皆為具體實物！</p>
 
     <div class="container" id="main"></div>
 
     <div id="pop" onclick="this.style.display='none'; window.speechSynthesis.cancel();">
-        <div id="p-symbol" style="font-size: 40px; color: #ffadad; margin-bottom: 10px;"></div>
+        <div id="p-symbol" style="font-size: 40px; color: #ffadad; margin-bottom: 5px;"></div>
         <img id="p-img" src="">
         <div id="p-word" class="word"></div>
-        <p style="margin-top:30px; color:#ccc;">點擊畫面關閉</p>
+        <p style="margin-top:20px; color:#ccc;">點擊畫面關閉</p>
     </div>
 
 <script>
     var library = {
         "ㄅ": [{n:"蘿蔔",g:"carrot"},{n:"包子",g:"steamed-bun"},{n:"杯子",g:"cup"}],
-        "ㄆ": [{n:"皮球",g:"beach-ball"},{n:"螃蟹",g:"crab"},{n:"跑步",g:"running"}],
+        "ㄆ": [{n:"皮球",g:"beach-ball"},{n:"螃蟹",g:"crab"},{n:"葡萄",g:"grapes"}],
         "ㄇ": [{n:"貓咪",g:"cat"},{n:"帽子",g:"hat"},{n:"麵包",g:"bread"}],
         "ㄈ": [{n:"飛機",g:"airplane"},{n:"房子",g:"home"},{n:"風扇",g:"fan"}],
-        "ㄉ": [{n:"大象",g:"elephant"},{n:"蛋糕",g:"cake"},{n:"弟弟",g:"boy"}],
+        "ㄉ": [{n:"大象",g:"elephant"},{n:"蛋糕",g:"cake"},{n:"燈泡",g:"light-bulb"}],
         "ㄊ": [{n:"兔子",g:"rabbit"},{n:"糖果",g:"candy"},{n:"太陽",g:"sun"}],
-        "ㄋ": [{n:"牛奶",g:"milk-bottle"},{n:"鳥兒",g:"bird"},{n:"奶奶",g:"old-woman"}],
+        "ㄋ": [{n:"牛奶",g:"milk-bottle"},{n:"鳥兒",g:"bird"},{n:"檸檬",g:"lemon"}],
         "ㄌ": [{n:"籃球",g:"basketball"},{n:"老鼠",g:"mouse"},{n:"辣椒",g:"chili-pepper"}],
-        "ㄍ": [{n:"西瓜",g:"watermelon"},{n:"哥哥",g:"young-man"},{n:"公車",g:"bus"}],
+        "ㄍ": [{n:"西瓜",g:"watermelon"},{n:"公車",g:"bus"},{n:"鋼琴",g:"piano"}],
         "ㄎ": [{n:"恐龍",g:"dinosaur"},{n:"口袋",g:"pocket"},{n:"筷子",g:"chopsticks"}],
         "ㄏ": [{n:"猴子",g:"monkey"},{n:"河馬",g:"hippopotamus"},{n:"火車",g:"train"}],
         "ㄐ": [{n:"雞蛋",g:"eggs"},{n:"機器人",g:"robot"},{n:"橘子",g:"orange"}],
         "ㄑ": [{n:"氣球",g:"balloons"},{n:"青蛙",g:"frog"},{n:"汽車",g:"car"}],
-        "ㄒ": [{n:"西瓜",g:"watermelon"},{n:"小鳥",g:"bird"},{n:"洗澡",g:"bathtub"}],
-        "ㄓ": [{n:"蜘蛛",g:"spider"},{n:"桌子",g:"table"},{n:"煮飯",g:"cooking"}],
-        "ㄔ": [{n:"車子",g:"car"},{n:"吃飯",g:"eating"},{n:"翅膀",g:"wings"}],
+        "ㄒ": [{n:"香蕉",g:"banana"},{n:"小鳥",g:"bird"},{n:"洗澡盆",g:"bathtub"}],
+        "ㄓ": [{n:"時鐘",g:"clock"},{n:"蜘蛛",g:"spider"},{n:"桌子",g:"table"}],
+        "ㄔ": [{n:"車子",g:"car"},{n:"城堡",g:"castle"},{n:"翅膀",g:"wings"}],
         "ㄕ": [{n:"獅子",g:"lion"},{n:"手指",g:"hand"},{n:"書本",g:"book"}],
-        "ㄖ": [{n:"日本",g:"japan"},{n:"日曆",g:"calendar"},{n:"日記",g:"journal"}],
-        "ㄗ": [{n:"走路",g:"walking"},{n:"紫色",g:"fill-color"},{n:"自己",g:"person-male"}],
-        "ㄘ": [{n:"草莓",g:"strawberry"},{n:"彩色",g:"rgb-circle"},{n:"廁所",g:"toilet"}],
-        "ㄙ": [{n:"松鼠",g:"squirrel"},{n:"絲巾",g:"scarf"},{n:"司機",g:"driver"}],
-        "ㄚ": [{n:"鴨子",g:"duck"},{n:"牙齒",g:"tooth"},{n:"沙發",g:"sofa"}],
-        "ㄛ": [{n:"菠菜",g:"spinach"},{n:"婆婆",g:"grandma"},{n:"波浪",g:"water-wave"}],
-        "ㄜ": [{n:"天鵝",g:"swan"},{n:"肚子餓",g:"hungry"},{n:"快樂",g:"happy"}],
-        "ㄝ": [{n:"葉子",g:"leaf"},{n:"爺爺",g:"old-man"},{n:"椰子",g:"coconut"}],
-        "ㄞ": [{n:"愛心",g:"like"},{n:"大海",g:"sea-waves"},{n:"排隊",g:"queue"}],
+        "ㄖ": [{n:"熱狗",g:"hot-dog"},{n:"日曆",g:"calendar"},{n:"肉乾",g:"steak"}],
+        "ㄗ": [{n:"橘子",g:"orange"},{n:"自行車",g:"bicycle"},{n:"粽子",g:"rice-dumplings"}],
+        "ㄘ": [{n:"草莓",g:"strawberry"},{n:"彩虹",g:"rainbow"},{n:"廁所",g:"toilet"}],
+        "ㄙ": [{n:"松鼠",g:"squirrel"},{n:"絲巾",g:"scarf"},{n:"掃帚",g:"broom"}],
+        "ㄚ": [{n:"鴨子",g:"duck"},{n:"牙刷",g:"toothbrush"},{n:"沙發",g:"sofa"}],
+        "ㄛ": [{n:"波浪",g:"water-wave"},{n:"菠菜",g:"spinach"},{n:"鳥窩",g:"bird-nest"}],
+        "ㄜ": [{n:"天鵝",g:"swan"},{n:"可樂",g:"cola"},{n:"惡魔",g:"devil"}],
+        "ㄝ": [{n:"葉子",g:"leaf"},{n:"椰子",g:"coconut"},{n:"靴子",g:"boot"}],
+        "ㄞ": [{n:"白菜",g:"cabbage"},{n:"大海",g:"sea-waves"},{n:"奶瓶",g:"baby-bottle"}],
         "ㄟ": [{n:"杯子",g:"cup"},{n:"飛機",g:"airplane"},{n:"眉毛",g:"eyebrow"}],
         "ㄠ": [{n:"書包",g:"school-bag"},{n:"貓咪",g:"cat"},{n:"外套",g:"jacket"}],
-        "ㄡ": [{n:"小狗",g:"dog"},{n:"手指",g:"hand"},{n:"蝸牛",g:"snail"}],
-        "ㄢ": [{n:"雨傘",g:"umbrella"},{n:"搬家",g:"moving-truck"},{n:"看書",g:"reading"}],
+        "ㄡ": [{n:"小狗",g:"dog"},{n:"蝸牛",g:"snail"},{n:"皮球",g:"beach-ball"}],
+        "ㄢ": [{n:"雨傘",g:"umbrella"},{n:"搬運車",g:"truck"},{n:"看書",g:"book"}],
         "ㄣ": [{n:"門鈴",g:"doorbell"},{n:"森林",g:"forest"},{n:"輪胎",g:"wheel"}],
-        "ㄤ": [{n:"冰箱",g:"fridge"},{n:"太陽",g:"sun"},{n:"幫忙",g:"helping-hands"}],
-        "ㄥ": [{n:"紅燈",g:"traffic-light"},{n:"風箏",g:"kite"},{n:"恐龍",g:"dinosaur"}],
-        "ㄦ": [{n:"耳朵",g:"ear"},{n:"兒子",g:"boy"},{n:"幼兒園",g:"school"}],
+        "ㄤ": [{n:"鋼琴",g:"piano"},{n:"冰箱",g:"fridge"},{n:"太陽",g:"sun"}],
+        "ㄥ": [{n:"時鐘",g:"clock"},{n:"紅燈",g:"traffic-light"},{n:"風箏",g:"kite"}],
+        "ㄦ": [{n:"耳朵",g:"ear"},{n:"兒子",g:"boy"},{n:"馬兒",g:"horse"}],
         "ㄧ": [{n:"衣服",g:"t-shirt"},{n:"椅子",g:"chair"},{n:"醫生",g:"doctor"}],
-        "ㄨ": [{n:"屋子",g:"home"},{n:"烏龜",g:"turtle"},{n:"玩具",g:"toy-car"}],
+        "ㄨ": [{n:"屋子",g:"home"},{n:"烏龜",g:"turtle"},{n:"玩具車",g:"toy-car"}],
         "ㄩ": [{n:"魚兒",g:"goldfish"},{n:"玉米",g:"corn"},{n:"羽毛",g:"feather"}]
     };
 
@@ -90,10 +90,10 @@
                 var choices = library[s];
                 var pick = choices[Math.floor(Math.random() * choices.length)];
                 document.getElementById('p-symbol').innerText = s;
-                // 採用最保險的英文關鍵字網址
                 document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + pick.g + ".png";
                 document.getElementById('p-word').innerText = pick.n;
                 document.getElementById('pop').style.display = 'flex';
+                
                 window.speechSynthesis.cancel();
                 var msg = new SpeechSynthesisUtterance(pick.n);
                 msg.lang = 'zh-TW'; msg.rate = 0.7;
