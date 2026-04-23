@@ -3,153 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>注音隨機圖像學習機</title>
+    <title>注音隨機圖像王</title>
     <style>
-        :root { --bg: #fdfdfd; --accent: #ff7675; --btn-bg: #f7f1e3; }
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; user-select: none; }
-        h1 { color: #d63031; margin-bottom: 5px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 10px; width: 100%; max-width: 800px; }
-        .btn { aspect-ratio: 1; background: var(--btn-bg); border: 3px solid #fab1a0; border-radius: 15px; box-shadow: 0 5px 0 #e17055; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 2.2rem; font-weight: bold; transition: 0.1s; }
-        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #e17055; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 100; }
-        .card { background: white; padding: 30px; border-radius: 35px; text-align: center; width: 85%; max-width: 400px; border: 10px solid var(--accent); }
-        .card-symbol { font-size: 5rem; color: var(--accent); display: block; margin-top: -10px; }
-        .card-image { width: 180px; height: 180px; object-fit: contain; margin: 15px 0; border-radius: 20px; border: 2px solid #f1f2f6; }
-        .card-word { font-size: 3rem; color: #2c3e50; font-weight: bold; }
+        :root { --bg: #ffffff; --accent: #ff7675; --btn-bg: #f7f1e3; }
+        body { font-family: sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 10px; width: 100%; max-width: 800px; margin-top: 20px; }
+        .btn { aspect-ratio: 1; background: var(--btn-bg); border: 3px solid #fab1a0; border-radius: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 2.2rem; font-weight: bold; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .card { background: white; padding: 30px; border-radius: 35px; text-align: center; width: 80%; max-width: 400px; }
+        .card-image { width: 150px; height: 150px; object-fit: contain; margin: 15px 0; }
+        .card-word { font-size: 3rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<h1>ㄅㄆㄇ 隨機圖像王 🎁</h1>
-<p>點點看符號，名字唸兩次喔！</p>
+<h1 style="color: #d63031;">ㄅㄆㄇ 隨機圖像王 🎁</h1>
+<p>點點看，名字唸兩遍喔！</p>
 
 <div class="grid" id="grid"></div>
 
-<div class="overlay" id="overlay" onclick="closeCard()">
+<div class="overlay" id="overlay" onclick="this.style.display='none';window.speechSynthesis.cancel();">
     <div class="card" onclick="event.stopPropagation()">
-        <span class="card-symbol" id="display-symbol"></span>
-        <img src="" alt="圖片載入中..." class="card-image" id="display-image">
-        <div class="card-word" id="display-word"></div>
-        <p style="color:#aaa; font-size: 0.8rem; margin-top: 20px;">點擊畫面關閉</p>
+        <img src="" class="card-image" id="card-img">
+        <div class="card-word" id="card-text"></div>
+        <button style="margin-top:20px; padding: 10px 20px;" onclick="document.getElementById('overlay').style.display='none';window.speechSynthesis.cancel();">關閉</button>
     </div>
 </div>
 
 <script>
-    const data = {
-        "ㄅ": [
-            { word: "蘿蔔", img: "https://img.icons8.com/color/400/carrot.png" },
-            { word: "包子", img: "https://img.icons8.com/color/400/steamed-bun.png" },
-            { word: "杯子", img: "https://img.icons8.com/color/400/cup.png" }
-        ],
-        "ㄆ": [
-            { word: "皮球", img: "https://img.icons8.com/color/400/beach-ball.png" },
-            { word: "螃蟹", img: "https://img.icons8.com/color/400/crab.png" },
-            { word: "跑步", img: "https://img.icons8.com/color/400/running.png" }
-        ],
-        "ㄇ": [
-            { word: "貓咪", img: "https://img.icons8.com/color/400/cat.png" },
-            { word: "帽子", img: "https://img.icons8.com/color/400/hat.png" },
-            { word: "牛奶", img: "https://img.icons8.com/color/400/milk-bottle.png" }
-        ],
-        "ㄈ": [
-            { word: "飛機", img: "https://img.icons8.com/color/400/airplane-mode-on.png" },
-            { word: "房子", img: "https://img.icons8.com/color/400/home.png" },
-            { word: "風扇", img: "https://img.icons8.com/color/400/fan.png" }
-        ],
-        "ㄉ": [
-            { word: "大象", img: "https://img.icons8.com/color/400/elephant.png" },
-            { word: "蛋糕", img: "https://img.icons8.com/color/400/cake.png" },
-            { word: "弟弟", img: "https://img.icons8.com/color/400/boy.png" }
-        ],
-        "ㄊ": [
-            { word: "兔子", img: "https://img.icons8.com/color/400/rabbit.png" },
-            { word: "糖果", img: "https://img.icons8.com/color/400/candy.png" },
-            { word: "太陽", img: "https://img.icons8.com/color/400/sun--v1.png" }
-        ],
-        "ㄋ": [
-            { word: "牛奶", img: "https://img.icons8.com/color/400/milk-bottle.png" },
-            { word: "鳥兒", img: "https://img.icons8.com/color/400/bird.png" },
-            { word: "奶奶", img: "https://img.icons8.com/color/400/grandma.png" }
-        ],
-        "ㄌ": [
-            { word: "籃球", img: "https://img.icons8.com/color/400/basketball.png" },
-            { word: "老鼠", img: "https://img.icons8.com/color/400/mouse.png" },
-            { word: "辣椒", img: "https://img.icons8.com/color/400/chili-pepper.png" }
-        ],
-        "ㄍ": [
-            { word: "西瓜", img: "https://img.icons8.com/color/400/watermelon.png" },
-            { word: "哥哥", img: "https://img.icons8.com/color/400/young-man.png" },
-            { word: "公車", img: "https://img.icons8.com/color/400/bus.png" }
-        ],
-        "ㄎ": [
-            { word: "恐龍", img: "https://img.icons8.com/color/400/dinosaur.png" },
-            { word: "口袋", img: "https://img.icons8.com/color/400/pocket.png" },
-            { word: "筷子", img: "https://img.icons8.com/color/400/chopsticks.png" }
-        ],
-        "ㄏ": [
-            { word: "猴子", img: "https://img.icons8.com/color/400/monkey.png" },
-            { word: "河馬", img: "https://img.icons8.com/color/400/hippopotamus.png" },
-            { word: "火車", img: "https://img.icons8.com/color/400/train.png" }
-        ],
-        "ㄐ": [
-            { word: "雞蛋", img: "https://img.icons8.com/color/400/eggs.png" },
-            { word: "機器人", img: "https://img.icons8.com/color/400/robot.png" },
-            { word: "橘子", img: "https://img.icons8.com/color/400/orange.png" }
-        ],
-        "ㄑ": [
-            { word: "氣球", img: "https://img.icons8.com/color/400/balloons.png" },
-            { word: "青蛙", img: "https://img.icons8.com/color/400/frog.png" },
-            { word: "汽車", img: "https://img.icons8.com/color/400/car--v1.png" }
-        ],
-        "ㄒ": [
-            { word: "西瓜", img: "https://img.icons8.com/color/400/watermelon.png" },
-            { word: "小鳥", img: "https://img.icons8.com/color/400/bird.png" },
-            { word: "洗澡", img: "https://img.icons8.com/color/400/bathtub.png" }
-        ],
-        "ㄓ": [
-            { word: "蜘蛛", img: "https://img.icons8.com/color/400/spider.png" },
-            { word: "桌子", img: "https://img.icons8.com/color/400/table.png" },
-            { word: "煮飯", img: "https://img.icons8.com/color/400/cooking.png" }
-        ],
-        "ㄔ": [
-            { word: "車子", img: "https://img.icons8.com/color/400/car--v1.png" },
-            { word: "吃飯", img: "https://img.icons8.com/color/400/eating.png" },
-            { word: "翅膀", img: "https://img.icons8.com/color/400/wings.png" }
-        ],
-        "ㄕ": [
-            { word: "獅子", img: "https://img.icons8.com/color/400/lion.png" },
-            { word: "手指", img: "https://img.icons8.com/color/400/hand.png" },
-            { word: "書本", img: "https://img.icons8.com/color/400/book.png" }
-        ],
-        "ㄖ": [
-            { word: "太陽", img: "https://img.icons8.com/color/400/sun--v1.png" },
-            { word: "日本", img: "https://img.icons8.com/color/400/japan.png" },
-            { word: "日子", img: "https://img.icons8.com/color/400/calendar.png" }
-        ],
-        "ㄗ": [
-            { word: "走路", img: "https://img.icons8.com/color/400/walking--v1.png" },
-            { word: "紫色", img: "https://img.icons8.com/color/400/fill-color.png" },
-            { word: "自己", img: "https://img.icons8.com/color/400/person-male.png" }
-        ],
-        "ㄘ": [
-            { word: "草莓", img: "https://img.icons8.com/color/400/strawberry.png" },
-            { word: "彩色", img: "https://img.icons8.com/color/400/rgb-circle.png" },
-            { word: "廁所", img: "https://img.icons8.com/color/400/toilet.png" }
-        ],
-        "ㄙ": [
-            { word: "松鼠", img: "https://img.icons8.com/color/400/squirrel.png" },
-            { word: "絲巾", img: "https://img.icons8.com/color/400/scarf.png" },
-            { word: "司機", img: "https://img.icons8.com/color/400/driver.png" }
-        ],
-        "ㄚ": [
-            { word: "鴨子", img: "https://img.icons8.com/color/400/duck.png" },
-            { word: "牙齒", img: "https://img.icons8.com/color/400/tooth.png" },
-            { word: "沙發", img: "https://img.icons8.com/color/400/sofa.png" }
-        ],
-        "ㄛ": [
-            { word: "公雞", img: "https://img.icons8.com/color/400/rooster.png" },
-            { word: "耳朵", img: "https://img.icons8.com/color/400/ear.png" },
-            { word: "菠菜", img: "https://img.icons8.com/color/400/spinach.png" }
-        ],
-        "ㄜ": [
-            { word: "天鵝", img: "https://img.
+    // 簡化資料庫，確保沒有壞掉的符號
+    const library = {
+        "ㄅ": [{w:"蘿蔔",i:"carrot"},{w:"包子",i:"steamed-bun"},{w:"杯子",i:"cup"}],
+        "ㄆ": [{w:"皮球",i:"beach-ball"},{w:"螃蟹",i:"crab"},{w:"跑步",i:"running"}],
+        "ㄇ": [{w:"貓咪",i:"cat"},{w:"帽子",i:"hat"},{w:"牛奶",i:"milk-bottle"}],
+        "ㄈ": [{w:"飛機",i:"airplane-mode-on"},{w:"房子",i:"home"},{w:"風扇",i:"fan"}],
+        "ㄉ": [{w:"大象",i:"elephant"},{w:"蛋糕",i:"cake"},{w:"弟弟",i:"boy"}],
+        "ㄊ": [{w:"兔子",i:"rabbit"},{w:"糖果",i:"candy"},{w:"太陽",i:"sun--v1"}],
+        "ㄋ": [{w:"牛奶",i:"milk-bottle"},{w:"鳥兒",i:"bird"},{w:"奶奶",i:"grandma"}],
+        "ㄌ": [{w:"籃球",i:"basketball"},{w:"老鼠",i:"mouse"},{w:"辣椒",i:"chili-pepper"}],
+        "ㄍ": [{w:"西瓜",i:"watermelon"},{w:"哥哥",i:"young-man"},{w:"公車",i:"bus"}],
+        "ㄎ": [{w:"恐龍",i:"dinosaur"},{w:"口袋",i:"pocket"},{w:"筷子",i:"chopsticks"}],
+        "ㄏ": [{w:"猴子",i:"monkey"},{w:"河馬",i:"hippopotamus"},{w:"火車",i:"train"}],
+        "ㄐ": [{w:"雞蛋",i:"eggs"},{w:"機器人",i:"robot"},{w:"橘子",i:"orange"}],
+        "ㄑ": [{word:"氣球",i:"balloons"},{w:"青蛙",i:"frog"},{w:"汽車",i:"car--v1"}],
+        "ㄒ": [{w:"西瓜",i:"watermelon"},{w:"小鳥",i:"bird"},{w:"洗澡",i:"bathtub"}],
+        "ㄓ": [{w:"蜘蛛",i:"spider"},{w:"桌子",i:"table"},{w:"煮飯",i:"cooking"}],
+        "ㄔ": [{w:"車子",i:"car--v1"},{w:"吃飯",i:"eating"},{w:"翅膀",i:"wings"}],
+        "ㄕ": [{w:"獅子",i:"lion"},{w:"手指",i:"hand"},{w:"書本",i:"book"}],
+        "ㄖ": [{w:"太陽",i:"sun--v1"},{w:"日本",i:"japan"},{w:"日子",i:"calendar"}],
+        "ㄗ": [{w:"走路",i:"walking--v1"},{w:"紫色",i:"fill-color"},{w:"自己",i:"person-male"}],
+        "ㄘ": [{w:"草莓",i:"strawberry"},{w:"彩色",i:"rgb-circle"},{w:"廁所",i:"toilet"}],
+        "ㄙ": [{w:"松鼠",i:"squirrel"},{w:"絲巾",i:"scarf"},{w:"司機",i:"driver"}],
+        "ㄚ": [{w:"鴨子",i:"duck"},{w:"牙齒",i:"tooth"},{w:"沙發",i:"sofa"}],
+        "ㄛ": [{w:"公雞",i:"rooster"},{w:"耳朵",i:"ear"},{w:"菠菜",i:"spinach"}],
+        "ㄜ": [{w:"天鵝",i:"swan"},{w:"肚子餓",i:"hungry"},{w:"快樂",i:"happy"}],
+        "ㄝ": [{w:"葉子",i:"leaf"},{w:"爺爺",i:"grandpa"},{w:"椰子",i:"coconut"}],
+        "ㄞ": [{w:"愛心",i:"like--v1"},{w:"大海",i:"sea-waves"},{w:"排隊",i:"queue"}],
+        "ㄟ": [{w:"杯子",i:"cup"},{w:"飛機",i:"airplane-mode-on"},{w:"眉毛",i:"eyebrow"}],
+        "ㄠ": [{w:"書包",i:"school-bag"},{w:"貓咪",i:"cat"},{w:"外套",i:"jacket"}],
+        "ㄡ": [{w:"小狗",i:"dog"},{w:"手指",i:"hand"},{w:"蝸牛",i:"snail"}],
+        "ㄢ": [{w:"雨傘",i:"umbrella"},{w:"搬家",i:"moving-truck"},{w:"看書",i:"reading"}],
+        "ㄣ": [{w:"門鈴",i:"doorbell"},{w:"森林",i:"forest"},{w:"輪胎",i:"wheel"}],
+        "ㄤ": [{w:"冰箱",i:"fridge"},{w:"太陽",i:"sun--v1"},{w:"幫忙",i:"helping-hands"}],
+        "ㄥ": [{w:"紅燈",i:"traffic-light"},{w:"風箏",i:"kite"},{w:"恐龍",i:"dinosaur"}],
+        "ㄦ": [{w:"耳朵",i:"ear"},{w:"兒子",i:"boy"},{w:"幼兒園",i:"school"}],
+        "ㄧ": [{w:"衣服",i:"t-shirt"},{w:"椅子",i:"chair"},{w:"醫生",i:"doctor"}],
+        "ㄨ": [{w:"屋子",i:"home"},{w:"烏龜",i:"turtle"},{w:"玩具",i:"toy-car"}],
+        "ㄩ": [{w:"下雨",i:"rain"},{w:"金魚",i:"goldfish"},{w:"玉米",i:"corn"}]
+    };
+
+    function speakTwice(word) {
+        window.speechSynthesis.cancel();
+        const u1 = new SpeechSynthesisUtterance(word);
+        u1.lang = 'zh-TW'; u1.rate = 0.7;
+        const u2 = new SpeechSynthesisUtterance(word);
+        u2.lang = 'zh-TW'; u2.rate = 0.7;
+        window.speechSynthesis.speak(u1);
+        window.speechSynthesis.speak(u2);
+    }
+
+    function play(s) {
+        const list = library[s];
+        const item = list[Math.floor(Math.random() * list.length)];
+        document.getElementById('card-img').src = "https://img.icons8.com/color/400/" + item.i + ".png";
+        document.getElementById('card-text').innerText = item.w;
+        document.getElementById('overlay').style.display = 'flex';
+        speakTwice(item.w);
+    }
+
+    const bops = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
+    const g = document.getElementById('grid');
+    bops.forEach(s => {
+        const d = document.createElement('div');
+        d.className = 'btn';
+        d.innerText = s;
+        d.onclick = () => play(s);
+        g.appendChild(d);
+    });
+</script>
+</body>
+</html>
