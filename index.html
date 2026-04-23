@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ㄅㄆㄇ 實物百科 🥇</title>
+    <title>ㄅㄆㄇ 圖像百科 🥇</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; user-select: none; }
         .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 850px; margin: 0 auto; }
@@ -27,7 +27,7 @@
 <body>
 
     <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🥇</h1>
-    <p>全名詞實體化、全圖片校正完畢！</p>
+    <p>全名詞發音校正完畢！這次絕對精確！</p>
 
     <div class="container" id="main"></div>
 
@@ -42,7 +42,6 @@
 <script>
     var currentEmoji = "❓";
     
-    // 嚴格校對資料庫：n為名稱, g為圖片關鍵字, e為備援Emoji
     var library = {
         "ㄅ": [{n:"蘿蔔",g:"carrot",e:"🥕"},{n:"爆米花",g:"popcorn",e:"🍿"},{n:"杯子",g:"cup",e:"🥛"}],
         "ㄆ": [{n:"皮球",g:"beach-ball",e:"⚽"},{n:"螃蟹",g:"crab",e:"🦀"},{n:"葡萄",g:"grapes",e:"🍇"}],
@@ -73,7 +72,7 @@
         "ㄟ": [{n:"杯子",g:"cup",e:"🥛"},{n:"飛機",g:"airplane",e:"✈️"},{n:"貝殼",g:"seashell",e:"🐚"}],
         "ㄠ": [{n:"書包",g:"school-bag",e:"🎒"},{n:"貓咪",g:"cat",e:"🐱"},{n:"外套",g:"jacket",e:"🧥"}],
         "ㄡ": [{n:"小狗",g:"dog",e:"🐶"},{n:"蝸牛",g:"snail",e:"🐌"},{n:"皮球",g:"beach-ball",e:"⚽"}],
-        "ㄢ": [{n:"雨傘",g:"umbrella",e:"☂️"},{n:"貨車",g:"truck",e:"🚚"},{n:"書本",g:"book",e:"📖"}],
+        "ㄢ": [{n:"雨傘",g:"umbrella",e:"☂️"},{n:"盤子",g:"plate",e:"🍽️"},{n:"雞蛋",g:"eggs",e:"🥚"}],
         "ㄣ": [{n:"門鈴",g:"doorbell",e:"🔔"},{n:"森林",g:"forest",e:"🌳"},{n:"輪胎",g:"wheel",e:"🛞"}],
         "ㄤ": [{n:"鋼琴",g:"piano",e:"🎹"},{n:"冰箱",g:"fridge",e:"🧊"},{n:"太陽",g:"sun",e:"☀️"}],
         "ㄥ": [{n:"時鐘",g:"clock",e:"⏰"},{n:"紅燈",g:"traffic-light",e:"🔴"},{n:"風箏",g:"kite",e:"🪁"}],
@@ -112,7 +111,7 @@
                 img.style.display = 'block';
                 em.style.display = 'none';
                 
-                // 強制刷新網址防止緩存舊圖
+                // 加時間戳記強制刷新
                 img.src = "https://img.icons8.com/color/400/" + pick.g + ".png?t=" + new Date().getTime();
                 
                 document.getElementById('pop').style.display = 'flex';
