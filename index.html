@@ -3,150 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>幼兒趣味注音符號學習</title>
+    <title>注音拼音練習機</title>
     <style>
         :root {
-            --bg-color: #f0f9ff;
-            --card-color: #ffffff;
-            --accent-color: #ff6b6b;
-            --text-color: #333;
+            --bg-color: #f7f1e3;
+            --btn-bg: #ffffff;
+            --accent: #ffb142;
         }
 
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
             background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            user-select: none; /* 防止長按文字被選取 */
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            user-select: none;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: #4a90e2;
-            font-size: 2rem;
-            margin: 10px 0;
-            text-shadow: 2px 2px #fff;
-        }
+        h1 { color: #33d9b2; text-shadow: 1px 1px #fff; }
+        p { color: #84817a; margin-bottom: 20px; }
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 15px;
-            width: 100%;
-            max-width: 800px;
+            grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+            gap: 12px;
+            width: 100%; max-width: 900px;
         }
 
         .btn {
-            aspect-ratio: 1 / 1.2;
-            background: var(--card-color);
-            border: 4px solid #e2e8f0;
+            aspect-ratio: 1 / 1;
+            background: var(--btn-bg);
+            border: 4px solid #33d9b2;
             border-radius: 20px;
-            box-shadow: 0 6px 0 #cbd5e1;
+            box-shadow: 0 6px 0 #218c74;
             cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.1s ease;
-            position: relative;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2.2rem; font-weight: bold; color: #2c3e50;
+            transition: 0.1s;
         }
 
-        /* 點擊時的下沉效果 */
         .btn:active {
             transform: translateY(4px);
-            box-shadow: 0 2px 0 #cbd5e1;
-            border-color: #4a90e2;
+            box-shadow: 0 2px 0 #218c74;
+            background-color: #f1f2f6;
         }
 
-        .symbol {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--text-color);
+        /* 彈出顯示大字 */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none; justify-content: center; align-items: center;
+            z-index: 100;
         }
 
-        /* 不同種類符號的顏色裝飾 */
-        .btn:nth-child(4n+1) { border-color: #ffadad; }
-        .btn:nth-child(4n+2) { border-color: #ffd6a5; }
-        .btn:nth-child(4n+3) { border-color: #caffbf; }
-        .btn:nth-child(4n+4) { border-color: #a0c4ff; }
-
-        .hint {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-top: 5px;
+        .card {
+            background: white; padding: 50px 20px; border-radius: 40px;
+            text-align: center; width: 85%; max-width: 400px;
+            border: 10px solid #33d9b2;
         }
 
-        footer {
-            margin-top: 30px;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
+        .card-symbol { font-size: 8rem; color: #ff5252; display: block; margin-bottom: 10px; }
+        .card-word { font-size: 3rem; color: #2c3e50; font-weight: bold; }
+        
+        .close-hint { margin-top: 30px; color: #aaa; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>ㄅㄆㄇ 點點樂 🎵</h1>
-    <p>點擊符號就會有聲音喔！</p>
-</header>
+<h1>ㄅㄆㄇ 語音拼讀 🎧</h1>
+<p>點一下符號，聽聽看是什麼詞！</p>
 
-<div class="grid-container" id="symbols-grid">
+<div class="grid-container" id="grid"></div>
+
+<div class="overlay" id="overlay" onclick="closeCard()">
+    <div class="card">
+        <span class="card-symbol" id="display-symbol"></span>
+        <div class="card-word" id="display-word"></div>
+        <div class="close-hint">點擊畫面任何地方關閉</div>
     </div>
-
-<footer>
-    適合三歲寶貝的初次學習
-</footer>
+</div>
 
 <script>
-    const bopomofo = [
-        "ㄅ", "ㄆ", "ㄇ", "ㄈ", "ㄉ", "ㄊ", "ㄋ", "ㄌ",
-        "ㄍ", "ㄎ", "ㄏ", "ㄐ", "ㄑ", "ㄒ", "ㄓ", "ㄔ",
-        "ㄕ", "ㄖ", "ㄗ", "ㄘ", "ㄙ", "ㄚ", "ㄛ", "ㄜ",
-        "ㄝ", "ㄞ", "ㄟ", "ㄠ", "ㄡ", "ㄢ", "ㄣ", "ㄤ",
-        "ㄥ", "ㄦ", "ㄧ", "ㄨ", "ㄩ"
-    ];
+    const data = {
+        "ㄅ": ["包子", "爸爸", "餅乾", "杯子", "筆"],
+        "ㄆ": ["皮球", "跑步", "螃蟹", "朋友", "盤子"],
+        "ㄇ": ["貓咪", "帽子", "妹妹", "木頭", "麵包"],
+        "ㄈ": ["飛機", "房子", "風扇", "飯團", "斧頭"],
+        "ㄉ": ["大象", "蛋糕", "弟弟", "肚子", "電話"],
+        "ㄊ": ["兔子", "糖果", "太陽", "天空", "樓梯"],
+        "ㄋ": ["牛奶", "泥土", "奶奶", "鳥兒", "手指"],
+        "ㄌ": ["籃球", "老鼠", "蠟燭", "辣椒", "鈴鐺"],
+        "ㄍ": ["哥哥", "西瓜", "餅乾", "公車", "罐頭"],
+        "ㄎ": ["恐龍", "口袋", "筷子", "哭泣", "課本"],
+        "ㄏ": ["猴子", "盒子", "河馬", "火車", "花生"],
+        "ㄐ": ["雞蛋", "戒指", "腳踏車", "機器人", "橘子"],
+        "ㄑ": ["氣球", "裙子", "青蛙", "汽車", "巧克力"],
+        "ㄒ": ["西瓜", "小鳥", "香蕉", "洗澡", "星星"],
+        "ㄓ": ["蜘蛛", "煮飯", "指甲", "桌子", "果汁"],
+        "ㄔ": ["吃飯", "車子", "翅膀", "尺寸", "牙刷"],
+        "ㄕ": ["獅子", "手指", "書本", "樹木", "勺子"],
+        "ㄖ": ["太陽", "日本", "熱狗", "日子", "認識"],
+        "ㄗ": ["字卡", "早安", "紫色", "走路", "自己"],
+        "ㄘ": ["草莓", "廁所", "刺蝟", "彩色", "菜單"],
+        "ㄙ": ["司機", "絲巾", "撕紙", "思考", "松鼠"],
+        "ㄚ": ["鴨子", "嘴巴", "牙齒", "發芽", "沙發"],
+        "ㄛ": ["公雞", "耳朵", "老婆婆", "波浪", "菠菜"],
+        "ㄜ": ["天鵝", "肚子餓", "哥哥", "河水", "快樂"],
+        "ㄝ": ["爺爺", "葉子", "椰子", "皮鞋", "蝴蝶"],
+        "ㄞ": ["愛心", "排隊", "拍手", "大海", "矮凳"],
+        "ㄟ": ["飛機", "眉毛", "睡覺", "背景", "杯子"],
+        "ㄠ": ["貓咪", "小鳥", "外套", "書包", "草地"],
+        "ㄡ": ["小狗", "手指", "蝸牛", "皮球", "溫柔"],
+        "ㄢ": ["山上的", "雨傘", "看書", "搬家", "樓梯間"],
+        "ㄣ": ["森林", "門鈴", "輪胎", "枕頭", "滾動"],
+        "ㄤ": ["太陽", "胖子", "冰箱", "幫忙", "髒了"],
+        "ㄥ": ["風扇", "紅燈", "風箏", "蜂鳥", "恐龍"],
+        "ㄦ": ["耳朵", "兒子", "幼兒園", "花兒", "鳥兒"],
+        "ㄧ": ["衣服", "椅子", "醫生", "醫生", "第一名"],
+        "ㄨ": ["房屋", "烏龜", "蜈蚣", "烏鴉", "玩具"],
+        "ㄩ": ["金魚", "下雨", "玉米", "宇宙", "羽毛"]
+    };
 
-    const grid = document.getElementById('symbols-grid');
-
-    // 建立語音物件
+    const grid = document.getElementById('grid');
     const synth = window.speechSynthesis;
 
     function speak(text) {
-        // 先取消目前正在播放的聲音，避免重疊
         synth.cancel();
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'zh-TW'; // 設定為台灣中文
-        utterance.rate = 0.8;      // 語速稍慢一點，適合小孩聽清
-        utterance.pitch = 1.2;     // 音調稍微調高，聽起來比較親切
-        synth.speak(utterance);
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'zh-TW';
+        utter.rate = 0.6; // 語速再慢一點，讓拼讀更清晰
+        utter.pitch = 1.1;
+        synth.speak(utter);
     }
 
-    // 生成按鈕
-    bopomofo.forEach(item => {
-        const button = document.createElement('div');
-        button.className = 'btn';
-        button.innerHTML = `<span class="symbol">${item}</span>`;
+    function showCard(symbol) {
+        const words = data[symbol] || ["學習中"];
+        // 隨機選一個詞
+        const randomWord = words[Math.floor(Math.random() * words.length)];
         
-        // 點擊事件
-        button.onclick = () => {
-            speak(item);
-            
-            // 加入簡單的小動畫效果
-            button.style.backgroundColor = '#e0f2fe';
-            setTimeout(() => {
-                button.style.backgroundColor = '#ffffff';
-            }, 200);
-        };
+        document.getElementById('display-symbol').innerText = symbol;
+        document.getElementById('display-word').innerText = randomWord;
+        document.getElementById('overlay').style.display = 'flex';
+        
+        // 朗讀邏輯：符號, 阿, 符號, 隨機詞, 符號
+        // 例如：ㄅ, 阿, ㄅ, 包子, ㄅ
+        const phoneticText = `${symbol}。阿。${symbol}。${randomWord}。${symbol}`;
+        speak(phoneticText);
+    }
 
-        grid.appendChild(button);
+    function closeCard() {
+        document.getElementById('overlay').style.display = 'none';
+        synth.cancel();
+    }
+
+    Object.keys(data).forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'btn';
+        div.innerText = s;
+        div.onclick = () => showCard(s);
+        grid.appendChild(div);
     });
 </script>
 
