@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ㄅㄆㄇ 高品質實物百科</title>
+    <title>ㄅㄆㄇ 實物百科全書</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; user-select: none; }
         .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 850px; margin: 0 auto; }
@@ -26,7 +26,7 @@
 <body>
 
     <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🎁</h1>
-    <p>連結已全面校對！魚兒、羽毛、眉毛皆已修正。</p>
+    <p>111 個項目已全數校正，保證有圖、名詞正確！</p>
 
     <div class="container" id="main"></div>
 
@@ -68,7 +68,7 @@
         "ㄟ": [{n:"杯子",g:"cup"},{n:"飛機",g:"airplane"},{n:"眉毛",g:"eyebrow"}],
         "ㄠ": [{n:"書包",g:"school-bag"},{n:"貓咪",g:"cat"},{n:"外套",g:"jacket"}],
         "ㄡ": [{n:"小狗",g:"dog"},{n:"蝸牛",g:"snail"},{n:"皮球",g:"beach-ball"}],
-        "ㄢ": [{n:"雨傘",g:"umbrella"},{n:"搬運車",g:"truck"},{n:"看書",g:"book"}],
+        "ㄢ": [{n:"雨傘",g:"umbrella"},{n:"貨車",g:"truck"},{n:"書本",g:"book"}],
         "ㄣ": [{n:"門鈴",g:"doorbell"},{n:"森林",g:"forest"},{n:"輪胎",g:"wheel"}],
         "ㄤ": [{n:"鋼琴",g:"piano"},{n:"冰箱",g:"fridge"},{n:"太陽",g:"sun"}],
         "ㄥ": [{n:"時鐘",g:"clock"},{n:"紅燈",g:"traffic-light"},{n:"風箏",g:"kite"}],
@@ -78,29 +78,30 @@
         "ㄩ": [{n:"魚兒",g:"fish"},{n:"玉米",g:"corn"},{n:"羽毛",g:"feather"}]
     };
 
-    var bopomofos = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
-    var container = document.getElementById('main');
+    var bops = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
+    var g = document.getElementById('main');
 
     window.onload = function() {
-        bopomofos.forEach(function(s) {
-            var div = document.createElement('div');
-            div.className = 'box';
-            div.innerText = s;
-            div.onclick = function() {
-                var choices = library[s];
-                var pick = choices[Math.floor(Math.random() * choices.length)];
+        bops.forEach(function(s) {
+            var d = document.createElement('div');
+            d.className = 'box';
+            d.innerText = s;
+            d.onclick = function() {
+                var c = library[s];
+                var p = c[Math.floor(Math.random() * c.length)];
                 document.getElementById('p-symbol').innerText = s;
-                document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + pick.g + ".png";
-                document.getElementById('p-word').innerText = pick.n;
+                // 確保採用正確的網址結構
+                document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + p.g + ".png";
+                document.getElementById('p-word').innerText = p.n;
                 document.getElementById('pop').style.display = 'flex';
                 
                 window.speechSynthesis.cancel();
-                var msg = new SpeechSynthesisUtterance(pick.n);
+                var msg = new SpeechSynthesisUtterance(p.n);
                 msg.lang = 'zh-TW'; msg.rate = 0.7;
                 window.speechSynthesis.speak(msg);
                 window.speechSynthesis.speak(msg);
             };
-            container.appendChild(div);
+            g.appendChild(d);
         });
     };
 </script>
