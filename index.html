@@ -1,105 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>注音學習機</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ㄅㄆㄇ 隨機圖像王</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #fafafa; }
+        body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; user-select: none; }
         .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 800px; margin: 0 auto; }
         .box { 
             width: 70px; height: 70px; line-height: 70px; 
-            margin: 5px; background: #fff; border: 2px solid #ff7675; 
-            border-radius: 10px; font-size: 30px; font-weight: bold; cursor: pointer;
+            margin: 8px; background: #fff; border: 3px solid #ff7675; 
+            border-radius: 15px; font-size: 32px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #fab1a0; transition: 0.1s;
         }
+        .box:active { transform: translateY(3px); box-shadow: 0 1px 0 #fab1a0; }
         #pop { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.9); display: none; flex-direction: column; 
-            align-items: center; justify-content: center; color: #fff;
+            align-items: center; justify-content: center; color: #fff; z-index: 999;
         }
-        img { width: 200px; height: 200px; margin: 20px; border-radius: 10px; }
-        .word { font-size: 50px; font-weight: bold; }
+        img { width: 220px; height: 220px; margin: 20px; border-radius: 20px; background: white; padding: 15px; object-fit: contain; }
+        .word { font-size: 55px; font-weight: bold; color: #fff; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-    <h1 style="color:#ff7675">ㄅㄆㄇ 學習機 🎁</h1>
-    <p>點一下符號，聽兩次名字</p>
+    <h1 style="color:#d63031">ㄅㄆㄇ 隨機圖像王 🎁</h1>
+    <p>名詞修正完畢！點點看驚喜喔！</p>
 
     <div class="container" id="main"></div>
 
     <div id="pop" onclick="this.style.display='none'; window.speechSynthesis.cancel();">
-        <img id="p-img" src="">
+        <div id="p-symbol" style="font-size: 40px; color: #ffadad;"></div>
+        <img id="p-img" src="" onerror="this.src='https://img.icons8.com/color/400/idea.png'">
         <div id="p-word" class="word"></div>
-        <p>點擊畫面關閉</p>
+        <p style="margin-top:30px; color:#ccc;">點擊畫面關閉</p>
     </div>
 
 <script>
-    // 這是最簡單的資料對照表
-    var items = {
-        "ㄅ": { n: "蘿蔔", g: "carrot" },
-        "ㄆ": { n: "皮球", g: "beach-ball" },
-        "ㄇ": { n: "貓咪", g: "cat" },
-        "ㄈ": { n: "飛機", g: "airplane" },
-        "ㄉ": { n: "大象", g: "elephant" },
-        "ㄊ": { n: "兔子", g: "rabbit" },
-        "ㄋ": { n: "牛奶", g: "milk-bottle" },
-        "ㄌ": { n: "籃球", g: "basketball" },
-        "ㄍ": { n: "西瓜", g: "watermelon" },
-        "ㄎ": { n: "恐龍", g: "dinosaur" },
-        "ㄏ": { n: "猴子", g: "monkey" },
-        "ㄐ": { n: "雞蛋", g: "eggs" },
-        "ㄑ": { n: "氣球", g: "balloons" },
-        "ㄒ": { n: "洗澡", g: "bathtub" },
-        "ㄓ": { n: "蜘蛛", g: "spider" },
-        "ㄔ": { n: "車子", g: "car" },
-        "ㄕ": { n: "獅子", g: "lion" },
-        "ㄖ": { n: "太陽", g: "sun" },
-        "ㄗ": { n: "走路", g: "walking" },
-        "ㄘ": { n: "草莓", g: "strawberry" },
-        "ㄙ": { n: "松鼠", g: "squirrel" },
-        "ㄚ": { n: "鴨子", g: "duck" },
-        "ㄛ": { n: "公雞", g: "rooster" },
-        "ㄜ": { n: "天鵝", g: "swan" },
-        "ㄝ": { n: "葉子", g: "leaf" },
-        "ㄞ": { n: "愛心", g: "like" },
-        "ㄟ": { n: "杯子", g: "cup" },
-        "ㄠ": { n: "書包", g: "school-bag" },
-        "ㄡ": { n: "小狗", g: "dog" },
-        "ㄢ": { n: "雨傘", g: "umbrella" },
-        "ㄣ": { n: "門鈴", g: "doorbell" },
-        "ㄤ": { n: "冰箱", g: "fridge" },
-        "ㄥ": { n: "紅燈", g: "traffic-light" },
-        "ㄦ": { n: "耳朵", g: "ear" },
-        "ㄧ": { n: "衣服", g: "t-shirt" },
-        "ㄨ": { n: "屋子", g: "home" },
-        "ㄩ": { n: "下雨", g: "rain" }
+    var library = {
+        "ㄅ": [{n:"蘿蔔",g:"carrot"},{n:"包子",g:"baozi"},{n:"杯子",g:"cup"}],
+        "ㄆ": [{n:"皮球",g:"ball-point-pen"},{n:"螃蟹",g:"crab"},{n:"跑步",g:"running"}],
+        "ㄇ": [{n:"貓咪",g:"cat"},{n:"帽子",g:"hat"},{n:"牛奶",g:"milk-bottle"}],
+        "ㄈ": [{n:"飛機",g:"airplane"},{n:"房子",g:"home"},{n:"風扇",g:"fan"}],
+        "ㄉ": [{n:"大象",g:"elephant"},{n:"蛋糕",g:"cake"},{n:"弟弟",g:"boy"}],
+        "ㄊ": [{n:"兔子",g:"rabbit"},{n:"糖果",g:"candy"},{n:"太陽",g:"sun"}],
+        "ㄋ": [{n:"牛奶",g:"milk-bottle"},{n:"鳥兒",g:"bird"},{n:"奶奶",g:"old-woman"}],
+        "ㄌ": [{n:"籃球",g:"basketball"},{n:"老鼠",g:"mouse"},{n:"辣椒",g:"chili-pepper"}],
+        "ㄍ": [{n:"西瓜",g:"watermelon"},{n:"哥哥",g:"young-man"},{n:"公車",g:"bus"}],
+        "ㄎ": [{n:"恐龍",g:"dinosaur"},{n:"口袋",g:"pocket"},{n:"筷子",g:"chopsticks"}],
+        "ㄏ": [{n:"猴子",g:"monkey"},{n:"河馬",g:"hippopotamus"},{n:"火車",g:"train"}],
+        "ㄐ": [{n:"雞蛋",g:"eggs"},{n:"機器人",g:"robot"},{n:"橘子",g:"orange"}],
+        "ㄑ": [{n:"氣球",g:"balloons"},{n:"青蛙",g:"frog"},{n:"汽車",g:"car"}],
+        "ㄒ": [{n:"西瓜",g:"watermelon"},{n:"小鳥",g:"bird"},{n:"洗澡",g:"bathtub"}],
+        "ㄓ": [{n:"蜘蛛",g:"spider"},{n:"桌子",g:"table"},{n:"煮飯",g:"cooking"}],
+        "ㄔ": [{n:"車子",g:"car"},{n:"吃飯",g:"eating"},{n:"翅膀",g:"wings"}],
+        "ㄕ": [{n:"獅子",g:"lion"},{n:"手指",g:"hand"},{n:"書本",g:"book"}],
+        "ㄖ": [{n:"日本",g:"japan"},{n:"日曆",g:"calendar"},{n:"日記",g:"journal"}],
+        "ㄗ": [{n:"走路",g:"walking"},{n:"紫色",g:"fill-color"},{n:"自己",g:"person-male"}],
+        "ㄘ": [{n:"草莓",g:"strawberry"},{n:"彩色",g:"rgb-circle"},{n:"廁所",g:"toilet"}],
+        "ㄙ": [{n:"松鼠",g:"squirrel"},{n:"絲巾",g:"scarf"},{n:"司機",g:"driver"}],
+        "ㄚ": [{n:"鴨子",g:"duck"},{n:"牙齒",g:"tooth"},{n:"沙發",g:"sofa"}],
+        "ㄛ": [{n:"菠菜",g:"spinach"},{n:"耳朵",g:"ear"},{n:"章魚",g:"octopus"}],
+        "ㄜ": [{n:"天鵝",g:"swan"},{n:"肚子餓",g:"hungry"},{n:"快樂",g:"happy"}],
+        "ㄝ": [{n:"葉子",g:"leaf"},{n:"爺爺",g:"grandpa"},{n:"椰子",g:"coconut"}],
+        "ㄞ": [{n:"愛心",g:"like"},{n:"大海",g:"sea-waves"},{n:"排隊",g:"queue"}],
+        "ㄟ": [{n:"杯子",g:"cup"},{n:"飛機",g:"airplane"},{n:"眉毛",g:"eyebrow"}],
+        "ㄠ": [{n:"書包",g:"school-bag"},{n:"貓咪",g:"cat"},{n:"外套",g:"jacket"}],
+        "ㄡ": [{n:"小狗",g:"dog"},{n:"手指",g:"hand"},{n:"蝸牛",g:"snail"}],
+        "ㄢ": [{n:"雨傘",g:"umbrella"},{n:"搬家",g:"moving-truck"},{n:"看書",g:"reading"}],
+        "ㄣ": [{n:"門鈴",g:"doorbell"},{n:"森林",g:"forest"},{n:"輪胎",g:"wheel"}],
+        "ㄤ": [{n:"冰箱",g:"fridge"},{n:"太陽",g:"sun"},{n:"幫忙",g:"helping-hands"}],
+        "ㄥ": [{n:"紅燈",g:"traffic-light"},{n:"風箏",g:"kite"},{n:"恐龍",g:"dinosaur"}],
+        "ㄦ": [{n:"耳朵",g:"ear"},{n:"兒子",g:"boy"},{n:"幼兒園",g:"school"}],
+        "ㄧ": [{n:"衣服",g:"t-shirt"},{n:"椅子",g:"chair"},{n:"醫生",g:"doctor"}],
+        "ㄨ": [{n:"屋子",g:"home"},{n:"烏龜",g:"turtle"},{n:"玩具",g:"toy-car"}],
+        "ㄩ": [{n:"下雨",g:"rain"},{n:"金魚",g:"goldfish"},{n:"玉米",g:"corn"}]
     };
 
-    var list = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
-    
-    var main = document.getElementById('main');
+    var bopomofos = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
+    var container = document.getElementById('main');
 
-    list.forEach(function(s) {
-        var div = document.createElement('div');
-        div.className = 'box';
-        div.innerText = s;
-        div.onclick = function() {
-            var target = items[s];
-            document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + target.g + ".png";
-            document.getElementById('p-word').innerText = target.n;
-            document.getElementById('pop').style.display = 'flex';
-            
-            // 語音：名詞唸兩遍
-            window.speechSynthesis.cancel();
-            var say = new SpeechSynthesisUtterance(target.n);
-            say.lang = 'zh-TW';
-            say.rate = 0.7;
-            window.speechSynthesis.speak(say);
-            window.speechSynthesis.speak(say);
-        };
-        main.appendChild(div);
-    });
+    window.onload = function() {
+        bopomofos.forEach(function(s) {
+            var div = document.createElement('div');
+            div.className = 'box';
+            div.innerText = s;
+            div.onclick = function() {
+                var choices = library[s];
+                var pick = choices[Math.floor(Math.random() * choices.length)];
+                
+                document.getElementById('p-symbol').innerText = s;
+                document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + pick.g + ".png";
+                document.getElementById('p-word').innerText = pick.n;
+                document.getElementById('pop').style.display = 'flex';
+                
+                window.speechSynthesis.cancel();
+                var msg = new SpeechSynthesisUtterance(pick.n);
+                msg.lang = 'zh-TW';
+                msg.rate = 0.7;
+                window.speechSynthesis.speak(msg);
+                window.speechSynthesis.speak(msg);
+            };
+            container.appendChild(div);
+        });
+    };
 </script>
 </body>
 </html>
