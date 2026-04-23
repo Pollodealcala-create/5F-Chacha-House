@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>注音單音學習機</title>
+    <title>注音純淨學習機</title>
     <style>
         :root { --bg: #fdfdfd; --accent: #ff7675; --btn-bg: #f7f1e3; }
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; user-select: none; }
@@ -20,8 +20,8 @@
 </head>
 <body>
 
-<h1>ㄅㄆㄇ 清楚單音版 📢</h1>
-<p>點一下符號，聽聽最乾淨的發音！</p>
+<h1>ㄅㄆㄇ 純淨學習機 📢</h1>
+<p>這次徹底移除重複音，讓寶貝聽得更清楚！</p>
 
 <div class="grid" id="grid"></div>
 
@@ -77,13 +77,22 @@
 
     const synth = window.speechSynthesis;
 
-    function speak(text) {
+    // 核心優化：只唸一次，不帶尾音
+    function speakPure(symbol, word) {
         synth.cancel();
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'zh-TW'; 
-        utter.rate = 0.7; // 慢速朗讀更清晰
-        utter.pitch = 1.0; // 正常的語調
-        synth.speak(utter);
+        
+        // 1. 先唸符號
+        const utterSymbol = new SpeechSynthesisUtterance(symbol);
+        utterSymbol.lang = 'zh-TW';
+        utterSymbol.rate = 0.6; 
+        
+        // 2. 再唸名詞 (中間會有一點自然停頓)
+        const utterWord = new SpeechSynthesisUtterance(word);
+        utterWord.lang = 'zh-TW';
+        utterWord.rate = 0.8;
+
+        synth.speak(utterSymbol);
+        synth.speak(utterWord);
     }
 
     function showCard(symbol) {
@@ -95,10 +104,8 @@
         document.getElementById('display-word').innerText = item.word;
         document.getElementById('overlay').style.display = 'flex';
         
-        // 朗讀邏輯：[符號] ... [名詞] ... [符號]
-        // 範例：ㄅ ... 蘿蔔 ... ㄅ
-        const textToSpeak = `${symbol}，${item.word}，${symbol}`;
-        speak(textToSpeak);
+        // 呼叫新的發音邏輯
+        speakPure(symbol, item.word);
     }
 
     function closeCard() {
