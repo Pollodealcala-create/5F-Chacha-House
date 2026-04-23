@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ㄅㄆㄇ 實物百科 終極修正版</title>
+    <title>ㄅㄆㄇ 實物百科 🥇</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; user-select: none; }
         .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 850px; margin: 0 auto; }
@@ -27,7 +27,7 @@
 <body>
 
     <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🥇</h1>
-    <p>蜜蜂、魚兒、羽毛、帽子全數修正！絕對有圖！</p>
+    <p>全名詞實體化、全圖片校正完畢！</p>
 
     <div class="container" id="main"></div>
 
@@ -42,9 +42,9 @@
 <script>
     var currentEmoji = "❓";
     
-    // 每個名詞都配有 n(名字), g(圖片關鍵字), e(備援 Emoji)
+    // 嚴格校對資料庫：n為名稱, g為圖片關鍵字, e為備援Emoji
     var library = {
-        "ㄅ": [{n:"蘿蔔",g:"carrot",e:"🥕"},{n:"包子",g:"steamed-bun",e:"🥟"},{n:"杯子",g:"cup",e:"🥛"}],
+        "ㄅ": [{n:"蘿蔔",g:"carrot",e:"🥕"},{n:"爆米花",g:"popcorn",e:"🍿"},{n:"杯子",g:"cup",e:"🥛"}],
         "ㄆ": [{n:"皮球",g:"beach-ball",e:"⚽"},{n:"螃蟹",g:"crab",e:"🦀"},{n:"葡萄",g:"grapes",e:"🍇"}],
         "ㄇ": [{n:"貓咪",g:"cat",e:"🐱"},{n:"帽子",g:"winter-hat",e:"👒"},{n:"麵包",g:"bread",e:"🍞"}],
         "ㄈ": [{n:"飛機",g:"airplane",e:"✈️"},{n:"房子",g:"home",e:"🏠"},{n:"風扇",g:"fan",e:"🌀"}],
@@ -112,7 +112,7 @@
                 img.style.display = 'block';
                 em.style.display = 'none';
                 
-                // 使用絕對穩定的網址連結 + 強制刷新
+                // 強制刷新網址防止緩存舊圖
                 img.src = "https://img.icons8.com/color/400/" + pick.g + ".png?t=" + new Date().getTime();
                 
                 document.getElementById('pop').style.display = 'flex';
