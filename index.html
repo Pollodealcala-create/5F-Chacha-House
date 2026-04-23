@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>注音純淨學習機</title>
+    <title>注音純淨學習機 - 最終修正版</title>
     <style>
         :root { --bg: #fdfdfd; --accent: #ff7675; --btn-bg: #f7f1e3; }
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; user-select: none; }
@@ -21,7 +21,7 @@
 <body>
 
 <h1>ㄅㄆㄇ 純淨學習機 📢</h1>
-<p>這次徹底移除重複音，讓寶貝聽得更清楚！</p>
+<p>已手動校正發音，移除多餘疊音！</p>
 
 <div class="grid" id="grid"></div>
 
@@ -35,6 +35,15 @@
 </div>
 
 <script>
+    // 手動校正表：避免電腦自動補完拼音
+    const voiceCorrection = {
+        "ㄅ": "玻", "ㄆ": "坡", "ㄇ": "摸", "ㄈ": "佛", "ㄉ": "得", "ㄊ": "特", "ㄋ": "呢", "ㄌ": "勒",
+        "ㄍ": "哥", "ㄎ": "科", "ㄏ": "喝", "ㄐ": "基", "ㄑ": "欺", "ㄒ": "希", "ㄓ": "知", "ㄔ": "吃",
+        "ㄕ": "師", "ㄖ": "日", "ㄗ": "資", "ㄘ": "雌", "ㄙ": "思", "ㄚ": "阿", "ㄛ": "喔", "ㄜ": "鵝",
+        "ㄝ": "耶", "ㄞ": "哀", "ㄟ": "欸", "ㄠ": "熬", "ㄡ": "歐", "ㄢ": "安", "ㄣ": "恩", "ㄤ": "昂",
+        "ㄥ": "亨", "ㄦ": "兒", "ㄧ": "一", "ㄨ": "屋", "ㄩ": "淤"
+    };
+
     const data = {
         "ㄅ": { word: "蘿蔔", img: "https://img.icons8.com/color/400/carrot.png" },
         "ㄆ": { word: "皮球", img: "https://img.icons8.com/color/400/beach-ball.png" },
@@ -77,16 +86,16 @@
 
     const synth = window.speechSynthesis;
 
-    // 核心優化：只唸一次，不帶尾音
-    function speakPure(symbol, word) {
+    function speakCorrected(symbol, word) {
         synth.cancel();
         
-        // 1. 先唸符號
-        const utterSymbol = new SpeechSynthesisUtterance(symbol);
+        // 抓取手動校正後的發音文字
+        const correctedSymbol = voiceCorrection[symbol] || symbol;
+
+        const utterSymbol = new SpeechSynthesisUtterance(correctedSymbol);
         utterSymbol.lang = 'zh-TW';
-        utterSymbol.rate = 0.6; 
+        utterSymbol.rate = 0.7; 
         
-        // 2. 再唸名詞 (中間會有一點自然停頓)
         const utterWord = new SpeechSynthesisUtterance(word);
         utterWord.lang = 'zh-TW';
         utterWord.rate = 0.8;
@@ -104,8 +113,7 @@
         document.getElementById('display-word').innerText = item.word;
         document.getElementById('overlay').style.display = 'flex';
         
-        // 呼叫新的發音邏輯
-        speakPure(symbol, item.word);
+        speakCorrected(symbol, item.word);
     }
 
     function closeCard() {
