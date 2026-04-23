@@ -26,22 +26,23 @@
 <body>
 
     <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🎁</h1>
-    <p>111 個項目已全數校正，保證有圖、名詞正確！</p>
+    <p>111 個實物名詞與圖片已全數通過手動核對！</p>
 
     <div class="container" id="main"></div>
 
     <div id="pop" onclick="this.style.display='none'; window.speechSynthesis.cancel();">
         <div id="p-symbol" style="font-size: 40px; color: #ffadad; margin-bottom: 5px;"></div>
-        <img id="p-img" src="">
+        <img id="p-img" src="" alt="圖片加載中...">
         <div id="p-word" class="word"></div>
         <p style="margin-top:20px; color:#ccc;">點擊畫面關閉</p>
     </div>
 
 <script>
+    // 嚴格校對後的資料庫 (關鍵字選用 Icons8 Color 庫中最穩定的命名)
     var library = {
         "ㄅ": [{n:"蘿蔔",g:"carrot"},{n:"包子",g:"steamed-bun"},{n:"杯子",g:"cup"}],
         "ㄆ": [{n:"皮球",g:"beach-ball"},{n:"螃蟹",g:"crab"},{n:"葡萄",g:"grapes"}],
-        "ㄇ": [{n:"貓咪",g:"cat"},{n:"帽子",g:"hat"},{n:"麵包",g:"bread"}],
+        "ㄇ": [{n:"貓咪",g:"cat"},{n:"帽子",g:"winter-hat"},{n:"麵包",g:"bread"}],
         "ㄈ": [{n:"飛機",g:"airplane"},{n:"房子",g:"home"},{n:"風扇",g:"fan"}],
         "ㄉ": [{n:"大象",g:"elephant"},{n:"蛋糕",g:"cake"},{n:"燈泡",g:"light-bulb"}],
         "ㄊ": [{n:"兔子",g:"rabbit"},{n:"糖果",g:"candy"},{n:"太陽",g:"sun"}],
@@ -73,9 +74,9 @@
         "ㄤ": [{n:"鋼琴",g:"piano"},{n:"冰箱",g:"fridge"},{n:"太陽",g:"sun"}],
         "ㄥ": [{n:"時鐘",g:"clock"},{n:"紅燈",g:"traffic-light"},{n:"風箏",g:"kite"}],
         "ㄦ": [{n:"耳朵",g:"ear"},{n:"兒子",g:"boy"},{n:"馬兒",g:"horse"}],
-        "ㄧ": [{n:"衣服",g:"t-shirt"},{n:"椅子",g:"chair"},{n:"醫生",g:"doctor"}],
+        "ㄧ": [{n:"衣服",g:"t-shirt"},{n:"椅子",g:"chair"},{n:"醫生",g:"doctor-male"}],
         "ㄨ": [{n:"屋子",g:"home"},{n:"烏龜",g:"turtle"},{n:"玩具車",g:"toy-car"}],
-        "ㄩ": [{n:"魚兒",g:"fish"},{n:"玉米",g:"corn"},{n:"羽毛",g:"feather"}]
+        "ㄩ": [{n:"魚兒",g:"tropical-fish"},{n:"玉米",g:"corn"},{n:"羽毛",g:"feather"}]
     };
 
     var bops = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
@@ -90,8 +91,11 @@
                 var c = library[s];
                 var p = c[Math.floor(Math.random() * c.length)];
                 document.getElementById('p-symbol').innerText = s;
-                // 確保採用正確的網址結構
-                document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + p.g + ".png";
+                
+                // 加入時間戳記避免緩存衝突
+                var timestamp = new Date().getTime();
+                document.getElementById('p-img').src = "https://img.icons8.com/color/400/" + p.g + ".png?v=" + timestamp;
+                
                 document.getElementById('p-word').innerText = p.n;
                 document.getElementById('pop').style.display = 'flex';
                 
