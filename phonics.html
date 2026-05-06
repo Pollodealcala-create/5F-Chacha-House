@@ -1,662 +1,620 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#ff6b9d">
-    <title>ㄅㄆㄇ 注音學習樂園 🌈</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --c1: #ff6b9d; --c2: #ffd93d; --c3: #6bcbf7; --c4: #a8e063;
-            --shadow: 0 6px 0;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>數數遊戲 🌟</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e0f4ff;
+    --sky2: #b8e5ff;
+    --sun: #FFD93D;
+    --orange: #FF6B35;
+    --green: #6BCB77;
+    --purple: #9B5DE5;
+    --pink: #F15BB5;
+    --blue: #00BBF9;
+    --card: #ffffff;
+    --text: #2d2d2d;
+    --muted: #7a869a;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+  }
 
-        body {
-            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
-            background: #fffbf0;
-            background-image: radial-gradient(circle at 20% 20%, #ffe4f0 0%, transparent 40%),
-                              radial-gradient(circle at 80% 80%, #e4f4ff 0%, transparent 40%);
-            min-height: 100vh;
-            padding: 20px;
-            user-select: none;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        header {
-            text-align: center;
-            padding: 10px 0 24px;
-        }
-        header h1 {
-            font-size: clamp(26px, 6vw, 42px);
-            font-weight: 900;
-            background: linear-gradient(135deg, #ff6b9d, #ff9a3c, #ffd93d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 2px;
-            text-shadow: none;
-        }
-        header p {
-            font-size: 15px;
-            color: #b5a4c0;
-            margin-top: 6px;
-        }
+  body {
+    font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+    background: linear-gradient(160deg, #e0f4ff 0%, #fce4ff 50%, #fff9e0 100%);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
 
-        .section-label {
-            width: 100%;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            color: #ccc;
-            padding: 10px 8px 4px;
-        }
+  /* floating clouds bg */
+  .cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .cloud::before, .cloud::after {
+    content:''; position:absolute; background:white; border-radius:50%;
+  }
+  .c1 { width:120px; height:40px; top:6%; left:-10%; animation: drift 28s linear infinite; }
+  .c1::before { width:60px;height:60px;top:-30px;left:20px; }
+  .c1::after  { width:40px;height:40px;top:-20px;left:60px; }
+  .c2 { width:90px; height:30px; top:18%; right:-5%; animation: drift2 22s linear infinite; }
+  .c2::before { width:45px;height:45px;top:-22px;left:15px; }
+  .c2::after  { width:30px;height:30px;top:-15px;left:45px; }
+  .c3 { width:70px; height:25px; top:75%; left:10%; animation: drift 35s linear infinite 5s; }
+  .c3::before { width:35px;height:35px;top:-17px;left:10px; }
+  @keyframes drift  { from{transform:translateX(0)} to{transform:translateX(110vw)} }
+  @keyframes drift2 { from{transform:translateX(0)} to{transform:translateX(-110vw)} }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 900px;
-            margin: 0 auto;
-            gap: 10px;
-        }
+  #app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    padding: 12px 12px 8px;
+    gap: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
 
-        .group-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 4px 0;
-        }
+  /* ── HEADER ── */
+  #header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-        .box {
-            width: 72px;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #fff;
-            border-radius: 18px;
-            font-size: 32px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-            position: relative;
-            border: none;
-        }
-        .box.sheng {
-            box-shadow: var(--shadow) #f4a0bd;
-            border-top: 3px solid var(--c1);
-            border-left: 3px solid var(--c1);
-        }
-        .box.yun {
-            box-shadow: var(--shadow) #b5d96b;
-            border-top: 3px solid #8ec63f;
-            border-left: 3px solid #8ec63f;
-        }
-        .box.jie {
-            box-shadow: var(--shadow) #7ab8d6;
-            border-top: 3px solid var(--c3);
-            border-left: 3px solid var(--c3);
-        }
-        .box:active {
-            transform: translateY(5px);
-            box-shadow: 0 1px 0 #ddd !important;
-        }
-        .box::after {
-            content: attr(data-hint);
-            position: absolute;
-            bottom: -18px;
-            font-size: 9px;
-            color: #bbb;
-            font-weight: 700;
-        }
+  #question-card {
+    flex: 1;
+    background: white;
+    border-radius: 18px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow);
+    font-size: clamp(16px, 4.2vw, 21px);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
 
-        /* Popup */
-        #pop {
-            position: fixed;
-            inset: 0;
-            background: rgba(10, 5, 30, 0.88);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-            padding: 20px;
-            backdrop-filter: blur(6px);
-        }
-        #pop.show {
-            display: flex;
-            animation: fadeIn 0.2s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+  #count-bubble {
+    background: var(--purple);
+    color: white;
+    border-radius: 50%;
+    width: 62px;
+    height: 62px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(155,93,229,0.45);
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+  #count-bubble.pop { animation: pop 0.22s ease; }
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+  #count-num { font-size: 26px; font-weight: 900; line-height: 1; }
+  #count-label { font-size: 11px; font-weight: 600; opacity: 0.85; }
 
-        #pop-card {
-            background: #fff;
-            border-radius: 32px;
-            padding: 30px 40px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 360px;
-            width: 100%;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-        }
+  /* ── SCATTER AREA ── */
+  #scatter-area {
+    flex: 1;
+    position: relative;
+    background: rgba(255,255,255,0.55);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    touch-action: manipulation;
+    backdrop-filter: blur(4px);
+  }
 
-        #p-symbol {
-            position: absolute;
-            top: 16px;
-            left: 22px;
-            font-size: 26px;
-            font-weight: 900;
-            color: var(--c1);
-        }
+  .emoji-item {
+    position: absolute;
+    font-size: clamp(38px, 8vw, 52px);
+    cursor: pointer;
+    user-select: none;
+    line-height: 1;
+    transition: transform 0.12s, opacity 0.25s;
+    touch-action: manipulation;
+    will-change: transform;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+  }
+  .emoji-item:active { transform: scale(1.3); }
+  .emoji-item.counted {
+    opacity: 0.18;
+    pointer-events: none;
+    transform: scale(0.7);
+  }
+  .num-badge {
+    position: absolute;
+    top: -8px; right: -10px;
+    background: var(--orange);
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    box-shadow: 0 2px 6px rgba(255,107,53,0.5);
+  }
+  .emoji-item.counted .num-badge { display: flex; }
 
-        #close-btn {
-            position: absolute;
-            top: 14px;
-            right: 16px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f5f5f5;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s;
-        }
-        #close-btn:hover { background: #ffe0ed; }
+  /* ── GUIDE ── */
+  #guide-text {
+    text-align: center;
+    font-size: clamp(13px, 3.2vw, 16px);
+    color: var(--muted);
+    font-weight: 600;
+    min-height: 20px;
+  }
 
-        #p-emoji {
-            font-size: 110px;
-            line-height: 1.1;
-            margin: 10px 0;
-            transition: transform 0.2s;
-        }
-        #p-emoji.bounce {
-            animation: bounce 0.4s ease;
-        }
-        @keyframes bounce {
-            0% { transform: scale(1); }
-            40% { transform: scale(1.15); }
-            70% { transform: scale(0.95); }
-            100% { transform: scale(1); }
-        }
+  /* ── ANSWER BUTTONS ── */
+  #answer-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ans-btn {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 900;
+    padding: 10px 0;
+    width: clamp(58px, 16vw, 72px);
+    border-radius: 16px;
+    border: 3px solid transparent;
+    background: white;
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+  }
+  .ans-btn:active { transform: scale(0.94); }
+  .ans-btn.correct { background: #d4f7dc; border-color: #6BCB77; color: #2d7a3c; }
+  .ans-btn.wrong   { background: #ffe0e0; border-color: #ff6b6b; color: #b02020; }
 
-        #p-word {
-            font-size: 54px;
-            font-weight: 900;
-            color: #2d1b4e;
-            letter-spacing: 3px;
-            margin-top: 4px;
-        }
+  /* ── FEEDBACK ── */
+  #feedback {
+    text-align: center;
+    font-size: clamp(17px, 4.5vw, 22px);
+    font-weight: 800;
+    min-height: 28px;
+    transition: opacity 0.2s;
+  }
+  #feedback.ok  { color: #2d7a3c; }
+  #feedback.bad { color: #b02020; }
 
-        #p-pinyin {
-            font-size: 14px;
-            color: #aaa;
-            margin-top: 4px;
-            letter-spacing: 1px;
-        }
+  /* ── BOTTOM BAR ── */
+  #bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #score-bar { display: flex; gap: 3px; flex-wrap: wrap; max-width: 60%; }
+  .star { font-size: 20px; line-height: 1; }
 
-        .pop-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
+  #next-btn {
+    display: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(155,93,229,0.4);
+    touch-action: manipulation;
+    transition: transform 0.1s;
+  }
+  #next-btn:active { transform: scale(0.96); }
 
-        .pop-btn {
-            padding: 11px 22px;
-            border-radius: 50px;
-            border: none;
-            font-family: 'Nunito', sans-serif;
-            font-size: 15px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-            box-shadow: 0 4px 0;
-        }
-        .pop-btn:active { transform: translateY(3px); box-shadow: 0 1px 0; }
-        .btn-replay {
-            background: var(--c2);
-            color: #7a5a00;
-            box-shadow-color: #c9a800;
-            box-shadow: 0 4px 0 #c9a800;
-        }
-        .btn-next {
-            background: var(--c1);
-            color: #fff;
-            box-shadow: 0 4px 0 #c04070;
-        }
-
-        .dot-row {
-            display: flex;
-            gap: 6px;
-            margin-top: 14px;
-        }
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ddd;
-            transition: background 0.2s;
-        }
-        .dot.active { background: var(--c1); }
-
-        .group-title {
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            font-weight: 900;
-            letter-spacing: 4px;
-            padding: 16px 0 6px;
-            color: #c0b0cc;
-        }
-
-        .divider {
-            width: 80%;
-            height: 2px;
-            background: linear-gradient(to right, transparent, #eee, transparent);
-            margin: 8px auto;
-        }
-    </style>
+  /* ── CONFETTI ── */
+  #confetti-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .cp {
+    position: absolute;
+    border-radius: 3px;
+    animation: cfall 1.8s ease-in forwards;
+  }
+  @keyframes cfall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity:1; }
+    100% { transform: translateY(110vh) rotate(900deg); opacity:0; }
+  }
+</style>
 </head>
 <body>
 
-<header>
-    <h1>🌈 ㄅㄆㄇ 注音樂園</h1>
-    <p>點點看，認識注音符號！</p>
-</header>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+<div class="cloud c3"></div>
+<div id="confetti-layer"></div>
 
-<div class="container" id="main"></div>
-
-<div id="pop">
-    <div id="pop-card">
-        <div id="p-symbol"></div>
-        <button id="close-btn" onclick="closePopup()">✕</button>
-        <div id="p-emoji">🎈</div>
-        <div id="p-word">文字</div>
-        <div id="p-pinyin"></div>
-        <div class="dot-row" id="dot-row"></div>
-        <div class="pop-actions">
-            <button class="pop-btn btn-replay" onclick="replayAudio()">🔊 再聽一次</button>
-            <button class="pop-btn btn-next" onclick="nextWord()">下一個 ➡️</button>
-        </div>
+<div id="app">
+  <div id="header">
+    <div id="question-card">載入中...</div>
+    <div id="count-bubble">
+      <span id="count-num">0</span>
+      <span id="count-label">個</span>
     </div>
+  </div>
+
+  <div id="scatter-area"></div>
+
+  <div id="guide-text">找找看，點每一個來數數 👆</div>
+  <div id="answer-row"></div>
+  <div id="feedback"></div>
+
+  <div id="bottom-bar">
+    <div id="score-bar"></div>
+    <button id="next-btn">下一題 ✨</button>
+  </div>
 </div>
 
 <script>
-// ── 資料庫：每個注音 5 個詞，全用 emoji 顯示（不依賴外部圖片）──
-const library = {
-    "ㄅ": [
-        {n:"蘿蔔", e:"🥕", p:"ㄌㄨㄛˊ ㄅㄛ"},
-        {n:"爆米花", e:"🍿", p:"ㄅㄠˋ ㄇㄧˇ ㄏㄨㄚ"},
-        {n:"杯子", e:"🥤", p:"ㄅㄟ ㄗ˙"},
-        {n:"冰淇淋", e:"🍦", p:"ㄅㄧㄥ ㄑㄧˊ ㄌㄧㄣˊ"},
-        {n:"蝙蝠", e:"🦇", p:"ㄅㄧㄢ ㄈㄨˊ"}
-    ],
-    "ㄆ": [
-        {n:"皮球", e:"⚽", p:"ㄆㄧˊ ㄑㄧㄡˊ"},
-        {n:"螃蟹", e:"🦀", p:"ㄆㄤˊ ㄒㄧㄝˋ"},
-        {n:"葡萄", e:"🍇", p:"ㄆㄨˊ ㄊㄠ˙"},
-        {n:"蘋果", e:"🍎", p:"ㄆㄧㄥˊ ㄍㄨㄛˇ"},
-        {n:"啤酒", e:"🍺", p:"ㄆㄧˊ ㄐㄧㄡˇ"}
-    ],
-    "ㄇ": [
-        {n:"貓咪", e:"🐱", p:"ㄇㄠ ㄇㄧ"},
-        {n:"帽子", e:"🎩", p:"ㄇㄠˋ ㄗ˙"},
-        {n:"麵包", e:"🍞", p:"ㄇㄧㄢˋ ㄅㄠ"},
-        {n:"蘑菇", e:"🍄", p:"ㄇㄛˊ ㄍㄨ"},
-        {n:"芒果", e:"🥭", p:"ㄇㄤˊ ㄍㄨㄛˇ"}
-    ],
-    "ㄈ": [
-        {n:"飛機", e:"✈️", p:"ㄈㄟ ㄐㄧ"},
-        {n:"房子", e:"🏠", p:"ㄈㄤˊ ㄗ˙"},
-        {n:"風箏", e:"🪁", p:"ㄈㄥ ㄓㄥ"},
-        {n:"番茄", e:"🍅", p:"ㄈㄢ ㄑㄧㄝˊ"},
-        {n:"楓葉", e:"🍁", p:"ㄈㄥ ㄧㄝˋ"}
-    ],
-    "ㄉ": [
-        {n:"大象", e:"🐘", p:"ㄉㄚˋ ㄒㄧㄤˋ"},
-        {n:"蛋糕", e:"🎂", p:"ㄉㄢˋ ㄍㄠ"},
-        {n:"燈泡", e:"💡", p:"ㄉㄥ ㄆㄠˋ"},
-        {n:"地球", e:"🌍", p:"ㄉㄧˋ ㄑㄧㄡˊ"},
-        {n:"釣魚", e:"🎣", p:"ㄉㄧㄠˋ ㄩˊ"}
-    ],
-    "ㄊ": [
-        {n:"兔子", e:"🐰", p:"ㄊㄨˋ ㄗ˙"},
-        {n:"糖果", e:"🍬", p:"ㄊㄤˊ ㄍㄨㄛˇ"},
-        {n:"太陽", e:"☀️", p:"ㄊㄞˋ ㄧㄤˊ"},
-        {n:"桃子", e:"🍑", p:"ㄊㄠˊ ㄗ˙"},
-        {n:"梯子", e:"🪜", p:"ㄊㄧ ㄗ˙"}
-    ],
-    "ㄋ": [
-        {n:"牛奶", e:"🍼", p:"ㄋㄧㄡˊ ㄋㄞˇ"},
-        {n:"鳥兒", e:"🐦", p:"ㄋㄧㄠˇ ㄦ˙"},
-        {n:"檸檬", e:"🍋", p:"ㄋㄧㄥˊ ㄇㄥˊ"},
-        {n:"牛", e:"🐮", p:"ㄋㄧㄡˊ"},
-        {n:"泥巴", e:"🏺", p:"ㄋㄧˊ ㄅㄚ"}
-    ],
-    "ㄌ": [
-        {n:"老虎", e:"🐯", p:"ㄌㄠˇ ㄏㄨˇ"},
-        {n:"老鼠", e:"🐭", p:"ㄌㄠˇ ㄕㄨˇ"},
-        {n:"辣椒", e:"🌶️", p:"ㄌㄚˋ ㄐㄧㄠ"},
-        {n:"梨子", e:"🍐", p:"ㄌㄧˊ ㄗ˙"},
-        {n:"龍", e:"🐉", p:"ㄌㄨㄥˊ"}
-    ],
-    "ㄍ": [
-        {n:"西瓜", e:"🍉", p:"ㄒㄧ ㄍㄨㄚ"},
-        {n:"公車", e:"🚌", p:"ㄍㄨㄥ ㄔㄜ"},
-        {n:"鋼琴", e:"🎹", p:"ㄍㄤ ㄑㄧㄣˊ"},
-        {n:"狗狗", e:"🐶", p:"ㄍㄡˇ ㄍㄡ˙"},
-        {n:"骨頭", e:"🦴", p:"ㄍㄨˇ ㄊㄡ˙"}
-    ],
-    "ㄎ": [
-        {n:"恐龍", e:"🦖", p:"ㄎㄨㄥˇ ㄌㄨㄥˊ"},
-        {n:"筷子", e:"🥢", p:"ㄎㄨㄞˋ ㄗ˙"},
-        {n:"口罩", e:"😷", p:"ㄎㄡˇ ㄓㄠˋ"},
-        {n:"咖啡", e:"☕", p:"ㄎㄚ ㄈㄟ"},
-        {n:"蝌蚪", e:"🐸", p:"ㄎㄜ ㄉㄡˇ"}
-    ],
-    "ㄏ": [
-        {n:"猴子", e:"🐒", p:"ㄏㄡˊ ㄗ˙"},
-        {n:"河馬", e:"🦛", p:"ㄏㄜˊ ㄇㄚˇ"},
-        {n:"火車", e:"🚂", p:"ㄏㄨㄛˇ ㄔㄜ"},
-        {n:"蝴蝶", e:"🦋", p:"ㄏㄨˊ ㄉㄧㄝˊ"},
-        {n:"漢堡", e:"🍔", p:"ㄏㄢˋ ㄅㄠˇ"}
-    ],
-    "ㄐ": [
-        {n:"雞蛋", e:"🥚", p:"ㄐㄧ ㄉㄢˋ"},
-        {n:"機器人", e:"🤖", p:"ㄐㄧ ㄑㄧˋ ㄖㄣˊ"},
-        {n:"橘子", e:"🍊", p:"ㄐㄩˊ ㄗ˙"},
-        {n:"鯨魚", e:"🐋", p:"ㄐㄧㄥ ㄩˊ"},
-        {n:"劍", e:"⚔️", p:"ㄐㄧㄢˋ"}
-    ],
-    "ㄑ": [
-        {n:"氣球", e:"🎈", p:"ㄑㄧˋ ㄑㄧㄡˊ"},
-        {n:"青蛙", e:"🐸", p:"ㄑㄧㄥ ㄨㄚ"},
-        {n:"汽車", e:"🚗", p:"ㄑㄧˋ ㄔㄜ"},
-        {n:"球", e:"🏀", p:"ㄑㄧㄡˊ"},
-        {n:"企鵝", e:"🐧", p:"ㄑㄧˇ ㄜˊ"}
-    ],
-    "ㄒ": [
-        {n:"香蕉", e:"🍌", p:"ㄒㄧㄤ ㄐㄧㄠ"},
-        {n:"小熊", e:"🐻", p:"ㄒㄧㄠˇ ㄒㄩㄥˊ"},
-        {n:"蝦子", e:"🦐", p:"ㄒㄧㄚ ㄗ˙"},
-        {n:"雪人", e:"⛄", p:"ㄒㄩㄝˇ ㄖㄣˊ"},
-        {n:"星星", e:"⭐", p:"ㄒㄧㄥ ㄒㄧㄥ"}
-    ],
-    "ㄓ": [
-        {n:"蜘蛛", e:"🕷️", p:"ㄓ ㄓㄨ"},
-        {n:"時鐘", e:"⏰", p:"ㄕˊ ㄓㄨㄥ"},
-        {n:"桌子", e:"🪑", p:"ㄓㄨㄛ ㄗ˙"},
-        {n:"豬豬", e:"🐷", p:"ㄓㄨ ㄓㄨ"},
-        {n:"珍珠", e:"🦪", p:"ㄓㄣ ㄓㄨ"}
-    ],
-    "ㄔ": [
-        {n:"城堡", e:"🏰", p:"ㄔㄥˊ ㄅㄠˇ"},
-        {n:"蟲子", e:"🐛", p:"ㄔㄨㄥˊ ㄗ˙"},
-        {n:"船", e:"⛵", p:"ㄔㄨㄢˊ"},
-        {n:"翅膀", e:"🦅", p:"ㄔˋ ㄅㄤˇ"},
-        {n:"叉子", e:"🍴", p:"ㄔㄚ ㄗ˙"}
-    ],
-    "ㄕ": [
-        {n:"獅子", e:"🦁", p:"ㄕ ㄗ˙"},
-        {n:"書本", e:"📖", p:"ㄕㄨ ㄅㄣˇ"},
-        {n:"手", e:"🖐️", p:"ㄕㄡˇ"},
-        {n:"蛇", e:"🐍", p:"ㄕㄜˊ"},
-        {n:"珊瑚", e:"🪸", p:"ㄕㄢ ㄏㄨˊ"}
-    ],
-    "ㄖ": [
-        {n:"熱狗", e:"🌭", p:"ㄖㄜˋ ㄍㄡˇ"},
-        {n:"日曆", e:"📅", p:"ㄖˋ ㄌㄧˋ"},
-        {n:"肉", e:"🥩", p:"ㄖㄡˋ"},
-        {n:"日出", e:"🌅", p:"ㄖˋ ㄔㄨ"},
-        {n:"燃火", e:"🔥", p:"ㄖㄢˊ ㄏㄨㄛˇ"}
-    ],
-    "ㄗ": [
-        {n:"自行車", e:"🚲", p:"ㄗˋ ㄒㄧㄥˊ ㄔㄜ"},
-        {n:"粽子", e:"🍙", p:"ㄗㄨㄥˋ ㄗ˙"},
-        {n:"足球", e:"⚽", p:"ㄗㄨˊ ㄑㄧㄡˊ"},
-        {n:"祖母", e:"👵", p:"ㄗㄨˇ ㄇㄨˇ"},
-        {n:"字", e:"📝", p:"ㄗˋ"}
-    ],
-    "ㄘ": [
-        {n:"草莓", e:"🍓", p:"ㄘㄠˇ ㄇㄟˊ"},
-        {n:"彩虹", e:"🌈", p:"ㄘㄞˇ ㄏㄨㄥˊ"},
-        {n:"廁所", e:"🚽", p:"ㄘㄜˋ ㄙㄨㄛˇ"},
-        {n:"蒼蠅", e:"🪰", p:"ㄘㄤ ㄧㄥˊ"},
-        {n:"菜籃", e:"🧺", p:"ㄘㄞˋ ㄌㄢˊ"}
-    ],
-    "ㄙ": [
-        {n:"松鼠", e:"🐿️", p:"ㄙㄨㄥ ㄕㄨˇ"},
-        {n:"掃帚", e:"🧹", p:"ㄙㄠˋ ㄓㄡˇ"},
-        {n:"四", e:"4️⃣", p:"ㄙˋ"},
-        {n:"絲巾", e:"🧣", p:"ㄙ ㄐㄧㄣ"},
-        {n:"蒜頭", e:"🧄", p:"ㄙㄨㄢˋ ㄊㄡˊ"}
-    ],
-    "ㄚ": [
-        {n:"鴨子", e:"🦆", p:"ㄧㄚ ㄗ˙"},
-        {n:"牙刷", e:"🪥", p:"ㄧㄚˊ ㄕㄨㄚ"},
-        {n:"螞蟻", e:"🐜", p:"ㄇㄚˇ ㄧˇ"},
-        {n:"西瓜", e:"🍉", p:"ㄒㄧ ㄍㄨㄚ"},
-        {n:"阿嬤", e:"👵", p:"ㄚ ㄇㄚ˙"}
-    ],
-    "ㄛ": [
-        {n:"婆婆", e:"👩‍🦳", p:"ㄆㄛˊ ㄆㄛ˙"},
-        {n:"菠菜", e:"🥬", p:"ㄅㄛ ㄘㄞˋ"},
-        {n:"波浪", e:"🌊", p:"ㄅㄛ ㄌㄤˋ"},
-        {n:"蘑菇", e:"🍄", p:"ㄇㄛˊ ㄍㄨ"},
-        {n:"佛陀", e:"🙏", p:"ㄈㄛˊ ㄊㄨㄛˊ"}
-    ],
-    "ㄜ": [
-        {n:"鵝", e:"🦢", p:"ㄜˊ"},
-        {n:"可樂", e:"🥤", p:"ㄎㄜˇ ㄌㄜˋ"},
-        {n:"餓", e:"😋", p:"ㄜˋ"},
-        {n:"蛾", e:"🦋", p:"ㄜˊ"},
-        {n:"惡魔", e:"😈", p:"ㄜˋ ㄇㄛˊ"}
-    ],
-    "ㄝ": [
-        {n:"葉子", e:"🍃", p:"ㄧㄝˋ ㄗ˙"},
-        {n:"椰子", e:"🥥", p:"ㄧㄝ ㄗ˙"},
-        {n:"靴子", e:"👢", p:"ㄒㄩㄝ ㄗ˙"},
-        {n:"夜晚", e:"🌙", p:"ㄧㄝˋ ㄨㄢˇ"},
-        {n:"爺爺", e:"👴", p:"ㄧㄝˊ ㄧㄝ˙"}
-    ],
-    "ㄞ": [
-        {n:"愛心", e:"❤️", p:"ㄞˋ ㄒㄧㄣ"},
-        {n:"奶瓶", e:"🍼", p:"ㄋㄞˇ ㄆㄧㄥˊ"},
-        {n:"白鶴", e:"🦩", p:"ㄅㄞˊ ㄏㄜˋ"},
-        {n:"菜刀", e:"🔪", p:"ㄘㄞˋ ㄉㄠ"},
-        {n:"海豚", e:"🐬", p:"ㄏㄞˇ ㄊㄨㄣˊ"}
-    ],
-    "ㄟ": [
-        {n:"貝殼", e:"🐚", p:"ㄅㄟˋ ㄎㄜˊ"},
-        {n:"飛機", e:"✈️", p:"ㄈㄟ ㄐㄧ"},
-        {n:"妹妹", e:"👧", p:"ㄇㄟˋ ㄇㄟ˙"},
-        {n:"美食", e:"🍣", p:"ㄇㄟˇ ㄕˊ"},
-        {n:"玫瑰", e:"🌹", p:"ㄇㄟˊ ㄍㄨㄟ"}
-    ],
-    "ㄠ": [
-        {n:"書包", e:"🎒", p:"ㄕㄨ ㄅㄠ"},
-        {n:"外套", e:"🧥", p:"ㄨㄞˋ ㄊㄠˋ"},
-        {n:"貓頭鷹", e:"🦉", p:"ㄇㄠ ㄊㄡˊ ㄧㄥ"},
-        {n:"跑步", e:"🏃", p:"ㄆㄠˇ ㄅㄨˋ"},
-        {n:"炮竹", e:"🧨", p:"ㄆㄠˋ ㄓㄨˊ"}
-    ],
-    "ㄡ": [
-        {n:"蝸牛", e:"🐌", p:"ㄨㄛ ㄋㄧㄡˊ"},
-        {n:"骰子", e:"🎲", p:"ㄊㄡˊ ㄗ˙"},
-        {n:"猴子", e:"🐒", p:"ㄏㄡˊ ㄗ˙"},
-        {n:"狗狗", e:"🐶", p:"ㄍㄡˇ ㄍㄡ˙"},
-        {n:"牛", e:"🐄", p:"ㄋㄧㄡˊ"}
-    ],
-    "ㄢ": [
-        {n:"雨傘", e:"☂️", p:"ㄩˇ ㄙㄢˇ"},
-        {n:"盤子", e:"🍽️", p:"ㄆㄢˊ ㄗ˙"},
-        {n:"山", e:"⛰️", p:"ㄕㄢ"},
-        {n:"棉花", e:"🌸", p:"ㄇㄧㄢˊ ㄏㄨㄚ"},
-        {n:"搬運", e:"📦", p:"ㄅㄢ ㄩㄣˋ"}
-    ],
-    "ㄣ": [
-        {n:"門", e:"🚪", p:"ㄇㄣˊ"},
-        {n:"森林", e:"🌳", p:"ㄙㄣ ㄌㄧㄣˊ"},
-        {n:"枕頭", e:"🛏️", p:"ㄓㄣˇ ㄊㄡˊ"},
-        {n:"蚊子", e:"🦟", p:"ㄨㄣˊ ㄗ˙"},
-        {n:"雲", e:"☁️", p:"ㄩㄣˊ"}
-    ],
-    "ㄤ": [
-        {n:"糖果", e:"🍭", p:"ㄊㄤˊ ㄍㄨㄛˇ"},
-        {n:"冰棒", e:"🍡", p:"ㄅㄧㄥ ㄅㄤˋ"},
-        {n:"網球", e:"🎾", p:"ㄨㄤˇ ㄑㄧㄡˊ"},
-        {n:"太陽", e:"☀️", p:"ㄊㄞˋ ㄧㄤˊ"},
-        {n:"香腸", e:"🌭", p:"ㄒㄧㄤ ㄔㄤˊ"}
-    ],
-    "ㄥ": [
-        {n:"時鐘", e:"🕐", p:"ㄕˊ ㄓㄨㄥ"},
-        {n:"風箏", e:"🪁", p:"ㄈㄥ ㄓㄥ"},
-        {n:"紅燈", e:"🚦", p:"ㄏㄨㄥˊ ㄉㄥ"},
-        {n:"燈籠", e:"🏮", p:"ㄉㄥ ㄌㄨㄥˊ"},
-        {n:"蜻蜓", e:"🦟", p:"ㄑㄧㄥ ㄊㄧㄥˊ"}
-    ],
-    "ㄦ": [
-        {n:"耳朵", e:"👂", p:"ㄦˇ ㄉㄨㄛ"},
-        {n:"兒子", e:"👦", p:"ㄦˊ ㄗ˙"},
-        {n:"馬兒", e:"🐎", p:"ㄇㄚˇ ㄦ˙"},
-        {n:"二", e:"✌️", p:"ㄦˋ"},
-        {n:"耳環", e:"💍", p:"ㄦˇ ㄏㄨㄢˊ"}
-    ],
-    "ㄧ": [
-        {n:"衣服", e:"👕", p:"ㄧ ㄈㄨ˙"},
-        {n:"椅子", e:"🪑", p:"ㄧˇ ㄗ˙"},
-        {n:"蜜蜂", e:"🐝", p:"ㄇㄧˋ ㄈㄥ"},
-        {n:"一", e:"1️⃣", p:"ㄧ"},
-        {n:"鸚鵡", e:"🦜", p:"ㄧㄥ ㄨˇ"}
-    ],
-    "ㄨ": [
-        {n:"屋子", e:"🏠", p:"ㄨ ㄗ˙"},
-        {n:"烏龜", e:"🐢", p:"ㄨ ㄍㄨㄟ"},
-        {n:"舞蹈", e:"💃", p:"ㄨˇ ㄉㄠˇ"},
-        {n:"五", e:"5️⃣", p:"ㄨˇ"},
-        {n:"霧", e:"🌫️", p:"ㄨˋ"}
-    ],
-    "ㄩ": [
-        {n:"魚", e:"🐟", p:"ㄩˊ"},
-        {n:"玉米", e:"🌽", p:"ㄩˋ ㄇㄧˇ"},
-        {n:"羽毛", e:"🪶", p:"ㄩˇ ㄇㄠˊ"},
-        {n:"月亮", e:"🌙", p:"ㄩㄝˋ ㄌㄧㄤ˙"},
-        {n:"雨", e:"🌧️", p:"ㄩˇ"}
-    ]
-};
-
-const bopomofos = [
-    {group:"聲母", chars:["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ"]},
-    {group:"韻母", chars:["ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ"]},
-    {group:"介母", chars:["ㄧ","ㄨ","ㄩ"]}
+const items = [
+  {name:"蘋果",  emoji:"🍎"},
+  {name:"香蕉",  emoji:"🍌"},
+  {name:"草莓",  emoji:"🍓"},
+  {name:"貓咪",  emoji:"🐱"},
+  {name:"小狗",  emoji:"🐶"},
+  {name:"小雞",  emoji:"🐥"},
+  {name:"魚",    emoji:"🐟"},
+  {name:"星星",  emoji:"⭐"},
+  {name:"氣球",  emoji:"🎈"},
+  {name:"花花",  emoji:"🌸"},
 ];
 
-const boxColors = [
-    "#ff6b9d","#ff9a3c","#ffd93d","#a8e063","#6bcbf7","#b48ce8","#ff8fab","#4ecdc4"
-];
+const chNum = ["","一","二","三","四","五","六","七","八","九","十",
+               "十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"];
 
-// ── State ──
-let currentSymbol = '';
-let currentWords = [];
-let currentIndex = 0;
-let currentUtterance = null;
+let currentItem, currentCount, clicked, answered, score=0, total=0;
+const AC = new AudioContext();
 
-function buildUI() {
-    const main = document.getElementById('main');
-    bopomofos.forEach(({group, chars}) => {
-        const title = document.createElement('div');
-        title.className = 'group-title';
-        title.innerText = `— ${group} —`;
-        main.appendChild(title);
+function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 
-        const row = document.createElement('div');
-        row.className = 'group-row';
-        chars.forEach((s, i) => {
-            const box = document.createElement('button');
-            box.className = 'box ' + (group === '聲母' ? 'sheng' : group === '韻母' ? 'yun' : 'jie');
-            box.innerText = s;
-            box.style.color = boxColors[i % boxColors.length];
-            box.onclick = () => openPopup(s);
-            row.appendChild(box);
-        });
-        main.appendChild(row);
-    });
+/* ── AUDIO ── */
+function beep(freq, dur, vol=0.5, type='sine'){
+  const o = AC.createOscillator();
+  const g = AC.createGain();
+  o.connect(g); g.connect(AC.destination);
+  o.frequency.value = freq;
+  o.type = type;
+  g.gain.setValueAtTime(vol, AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+  o.start(AC.currentTime);
+  o.stop(AC.currentTime + dur);
 }
 
-function openPopup(symbol) {
-    currentSymbol = symbol;
-    currentWords = [...library[symbol]].sort(() => Math.random() - 0.5); // shuffle
-    currentIndex = 0;
-    renderPopup();
-    document.getElementById('pop').className = 'show';
+function playClick(){
+  beep(880, 0.08, 0.3, 'triangle');
 }
 
-function renderPopup() {
-    const pick = currentWords[currentIndex];
-    document.getElementById('p-symbol').innerText = currentSymbol;
-    document.getElementById('p-word').innerText = pick.n;
-    document.getElementById('p-pinyin').innerText = pick.p;
-
-    const emojiEl = document.getElementById('p-emoji');
-    emojiEl.innerText = pick.e;
-    emojiEl.className = 'bounce';
-    setTimeout(() => emojiEl.className = '', 500);
-
-    // Dots
-    const dotRow = document.getElementById('dot-row');
-    dotRow.innerHTML = '';
-    currentWords.forEach((_, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'dot' + (i === currentIndex ? ' active' : '');
-        dotRow.appendChild(dot);
-    });
-
-    speak(pick.n);
+function speak(text){
+  if(!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-TW';
+  u.rate = 0.82;
+  u.pitch = 1.1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
 }
 
-function nextWord() {
-    currentIndex = (currentIndex + 1) % currentWords.length;
-    renderPopup();
+function playCorrect(){
+  const t = AC.currentTime;
+
+  // ── 1. 叮咚上行音階 (電視搶答) ──
+  const fanfare = [523.25, 659.25, 783.99, 1046.5, 1318.5]; // C5 E5 G5 C6 E6
+  fanfare.forEach((f, i) => {
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'sine'; o.frequency.value = f;
+    const st = t + i * 0.10;
+    g.gain.setValueAtTime(0, st);
+    g.gain.linearRampToValueAtTime(0.5, st + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, st + 0.30);
+    o.start(st); o.stop(st + 0.32);
+  });
+
+  // ── 2. 鈴聲和弦 (高頻三和弦叮!) ──
+  [2093, 2637, 3136].forEach((f, i) => {        // C7 E7 G7
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'triangle'; o.frequency.value = f;
+    const st = t + 0.50 + i * 0.04;
+    g.gain.setValueAtTime(0, st);
+    g.gain.linearRampToValueAtTime(0.30, st + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, st + 0.55);
+    o.start(st); o.stop(st + 0.58);
+  });
+
+  // ── 3. 鼓聲節拍 (bass drum × 3) ──
+  [0.55, 0.70, 0.82].forEach(delay => {
+    const buf = AC.createBuffer(1, AC.sampleRate * 0.12, AC.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(AC.sampleRate*0.04));
+    const src = AC.createBufferSource(), g = AC.createGain();
+    const filt = AC.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 180;
+    src.buffer = buf;
+    src.connect(filt); filt.connect(g); g.connect(AC.destination);
+    g.gain.setValueAtTime(1.8, t + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.10);
+    src.start(t + delay); src.stop(t + delay + 0.12);
+  });
+
+  // ── 4. 歡呼掌聲 (白噪音短爆) ──
+  [0.58, 0.68, 0.77, 0.86].forEach(delay => {
+    const buf = AC.createBuffer(1, AC.sampleRate * 0.06, AC.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(AC.sampleRate*0.025));
+    const src = AC.createBufferSource(), g = AC.createGain();
+    const filt = AC.createBiquadFilter();
+    filt.type = 'highpass'; filt.frequency.value = 2000;
+    src.buffer = buf;
+    src.connect(filt); filt.connect(g); g.connect(AC.destination);
+    g.gain.setValueAtTime(2.2, t + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.06);
+    src.start(t + delay); src.stop(t + delay + 0.07);
+  });
+
+  // ── 5. 尾聲叮咚下行 ──
+  [[1318.5, 0.95], [1046.5, 1.12], [783.99, 1.26]].forEach(([f, delay]) => {
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t + delay);
+    g.gain.linearRampToValueAtTime(0.35, t + delay + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.45);
+    o.start(t + delay); o.stop(t + delay + 0.48);
+  });
 }
 
-function replayAudio() {
-    speak(currentWords[currentIndex].n);
+function playWrong(){
+  const t = AC.currentTime;
+  [300, 220].forEach((f, i) => {
+    const o = AC.createOscillator();
+    const g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'sawtooth';
+    o.frequency.value = f;
+    const st = t + i * 0.2;
+    g.gain.setValueAtTime(0.3, st);
+    g.gain.exponentialRampToValueAtTime(0.001, st + 0.25);
+    o.start(st); o.stop(st + 0.28);
+  });
 }
 
-function speak(text) {
-    window.speechSynthesis.cancel();
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'zh-TW';
-    msg.rate = 0.75;
-    msg.pitch = 1.1;
-    window.speechSynthesis.speak(msg);
+/* ── PLACE EMOJIS ── */
+function noOverlap(positions, x, y, size){
+  for(const p of positions){
+    const dx=p.x-x, dy=p.y-y;
+    if(Math.sqrt(dx*dx+dy*dy) < size) return false;
+  }
+  return true;
 }
 
-function closePopup() {
-    window.speechSynthesis.cancel();
-    document.getElementById('pop').className = '';
+function placeEmojis(){
+  const area = document.getElementById("scatter-area");
+  area.innerHTML = "";
+
+  // 用 getBoundingClientRect 確保拿到真實尺寸
+  const rect = area.getBoundingClientRect();
+  const W = Math.max(rect.width,  area.offsetWidth,  280);
+  const H = Math.max(rect.height, area.offsetHeight, 200);
+
+  // 手機上圖案小一點，數量多時縮得更小
+  const baseSize = Math.min(48, W * 0.11);
+  const emojiSize = currentCount > 15 ? Math.min(baseSize, 36) :
+                    currentCount > 10 ? Math.min(baseSize, 42) : baseSize;
+
+  const pad = 8;
+  const safeW = W - emojiSize - pad;
+  const safeH = H - emojiSize - pad;
+  const positions = [];
+
+  for(let i=0;i<currentCount;i++){
+    let x = pad, y = pad, ok=false;
+    for(let t=0;t<400&&!ok;t++){
+      x = rand(pad, Math.max(pad+1, safeW));
+      y = rand(pad, Math.max(pad+1, safeH));
+      ok = noOverlap(positions, x+emojiSize/2, y+emojiSize/2, emojiSize+4);
+    }
+    // 強制夾在安全範圍內，防止超出
+    x = Math.max(pad, Math.min(x, safeW));
+    y = Math.max(pad, Math.min(y, safeH));
+    positions.push({x:x+emojiSize/2, y:y+emojiSize/2});
+
+    const el = document.createElement("span");
+    el.className = "emoji-item";
+    el.style.left     = x+"px";
+    el.style.top      = y+"px";
+    el.style.fontSize = emojiSize+"px";
+    el.dataset.idx    = i;
+    el.innerHTML = currentItem.emoji + '<span class="num-badge">'+(i+1)+'</span>';
+    el.addEventListener("pointerdown", onEmojiClick, {passive:true});
+    area.appendChild(el);
+  }
 }
 
-// 點背景關閉
-document.getElementById('pop').addEventListener('click', function(e) {
-    if (e.target === this) closePopup();
-});
+function onEmojiClick(e){
+  if(answered) return;
+  const el = e.currentTarget;
+  if(el.classList.contains("counted")) return;
+  el.classList.add("counted");
+  clicked++;
+  playClick();
 
-// 鍵盤 Esc 關閉
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePopup();
-});
+  const bubble = document.getElementById("count-bubble");
+  document.getElementById("count-num").textContent = clicked;
+  bubble.classList.remove("pop");
+  void bubble.offsetWidth;
+  bubble.classList.add("pop");
 
-buildUI();
+  const n = clicked;
+  setTimeout(() => speak(chNum[n]), 120);
+
+  const rem = currentCount - clicked;
+  if(rem === 0){
+    document.getElementById("guide-text").textContent = "數完了！現在選選看答案吧 ✨";
+  } else {
+    document.getElementById("guide-text").textContent =
+      "還有 " + rem + " 個！繼續找找看 👆";
+  }
+}
+
+/* ── ANSWER ── */
+function buildAnswerButtons(){
+  const box = document.getElementById("answer-row");
+  box.innerHTML = "";
+  const opts = new Set([currentCount]);
+  let tries = 0;
+  while(opts.size < 4 && tries < 500){
+    opts.add(rand(Math.max(1, currentCount-4), Math.min(20, currentCount+4)));
+    tries++;
+  }
+  Array.from(opts).sort((a,b)=>a-b).forEach(n=>{
+    const b = document.createElement("button");
+    b.className = "ans-btn";
+    b.textContent = n;
+    b.addEventListener("pointerdown", ()=>onAnswer(n,b), {passive:true});
+    box.appendChild(b);
+  });
+}
+
+function onAnswer(n, btn){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll(".ans-btn").forEach(b=>{
+    if(parseInt(b.textContent)===currentCount) b.classList.add("correct");
+  });
+
+  const fb = document.getElementById("feedback");
+  if(n===currentCount){
+    btn.classList.add("correct");
+    fb.textContent = "🎉 答對了！好棒棒！";
+    fb.className = "ok";
+    score++;
+    playCorrect();
+    launchConfetti();
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = "再數數看喔！是 "+currentCount+" 個！";
+    fb.className = "bad";
+    playWrong();
+    speak("再試試看！");
+  }
+  renderScore();
+  document.getElementById("next-btn").style.display = "inline-block";
+}
+
+/* ── SCORE ── */
+function renderScore(){
+  const bar = document.getElementById("score-bar");
+  bar.innerHTML = "";
+  for(let i=0;i<total;i++){
+    const s=document.createElement("span");
+    s.className="star";
+    s.textContent = i<score?"⭐":"☆";
+    bar.appendChild(s);
+  }
+}
+
+/* ── CONFETTI ── */
+function launchConfetti(){
+  const area = document.getElementById("confetti-layer");
+  const cols = ["#FF6B35","#FFD93D","#6BCB77","#00BBF9","#F15BB5","#9B5DE5","#ff4444","#ffffff"];
+  const shapes = ["rect","circle","star"];
+
+  function makePiece(delay){
+    const el = document.createElement("div");
+    const shape = shapes[rand(0, shapes.length-1)];
+    const color = cols[rand(0, cols.length-1)];
+    const size  = rand(8, 16);
+    const left  = rand(2, 98);
+    const dur   = (1400 + rand(0, 800)) / 1000;
+    const rot   = rand(0, 360);
+
+    el.style.cssText = `
+      position:absolute;
+      left:${left}%;
+      top:-20px;
+      width:${size}px;
+      height:${shape==='rect'?rand(6,12):size}px;
+      background:${color};
+      border-radius:${shape==='circle'?'50%':'3px'};
+      animation: cfall ${dur}s ease-in ${delay}s forwards;
+      transform: rotate(${rot}deg);
+    `;
+    if(shape==='star'){
+      el.style.background = 'transparent';
+      el.style.fontSize = size+'px';
+      el.style.lineHeight = '1';
+      el.textContent = '★';
+      el.style.color = color;
+      el.style.width = 'auto';
+      el.style.height = 'auto';
+    }
+    area.appendChild(el);
+    setTimeout(() => el.remove(), (dur + delay + 0.3) * 1000);
+  }
+
+  // 第一波：立即爆發 80 片
+  for(let i=0;i<80;i++) makePiece(rand(0,60)/100);
+  // 第二波：0.4秒後再補 50 片
+  setTimeout(()=>{ for(let i=0;i<50;i++) makePiece(rand(0,50)/100); }, 400);
+  // 第三波：0.9秒後收尾 30 片
+  setTimeout(()=>{ for(let i=0;i<30;i++) makePiece(rand(0,40)/100); }, 900);
+}
+
+/* ── NEXT ── */
+function nextQuestion(){
+  // unlock AudioContext on first interaction
+  if(AC.state==="suspended") AC.resume();
+
+  currentItem  = items[rand(0, items.length-1)];
+  currentCount = rand(1, 20);
+  clicked      = 0;
+  answered     = false;
+  total++;
+
+  document.getElementById("question-card").textContent =
+    "現在有幾個" + currentItem.name + "？一起數數看！";
+  document.getElementById("count-num").textContent = "0";
+  document.getElementById("guide-text").textContent = "找找看，點每一個來數數 👆";
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("feedback").className = "";
+  document.getElementById("next-btn").style.display = "none";
+
+  buildAnswerButtons();
+  renderScore();
+  requestAnimationFrame(() => requestAnimationFrame(() => placeEmojis()));
+}
+
+document.getElementById("next-btn").addEventListener("pointerdown", nextQuestion, {passive:true});
+nextQuestion();
 </script>
 </body>
 </html>
