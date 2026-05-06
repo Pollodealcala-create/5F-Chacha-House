@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>數數遊戲 🌟</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e0f4ff;
+    --sky2: #b8e5ff;
+    --sun: #FFD93D;
+    --orange: #FF6B35;
+    --green: #6BCB77;
+    --purple: #9B5DE5;
+    --pink: #F15BB5;
+    --blue: #00BBF9;
+    --card: #ffffff;
+    --text: #2d2d2d;
+    --muted: #7a869a;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+    background: linear-gradient(160deg, #e0f4ff 0%, #fce4ff 50%, #fff9e0 100%);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  /* floating clouds bg */
+  .cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .cloud::before, .cloud::after {
+    content:''; position:absolute; background:white; border-radius:50%;
+  }
+  .c1 { width:120px; height:40px; top:6%; left:-10%; animation: drift 28s linear infinite; }
+  .c1::before { width:60px;height:60px;top:-30px;left:20px; }
+  .c1::after  { width:40px;height:40px;top:-20px;left:60px; }
+  .c2 { width:90px; height:30px; top:18%; right:-5%; animation: drift2 22s linear infinite; }
+  .c2::before { width:45px;height:45px;top:-22px;left:15px; }
+  .c2::after  { width:30px;height:30px;top:-15px;left:45px; }
+  .c3 { width:70px; height:25px; top:75%; left:10%; animation: drift 35s linear infinite 5s; }
+  .c3::before { width:35px;height:35px;top:-17px;left:10px; }
+  @keyframes drift  { from{transform:translateX(0)} to{transform:translateX(110vw)} }
+  @keyframes drift2 { from{transform:translateX(0)} to{transform:translateX(-110vw)} }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    padding: 12px 12px 8px;
+    gap: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  #header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #question-card {
+    flex: 1;
+    background: white;
+    border-radius: 18px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow);
+    font-size: clamp(16px, 4.2vw, 21px);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  #count-bubble {
+    background: var(--purple);
+    color: white;
+    border-radius: 50%;
+    width: 62px;
+    height: 62px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(155,93,229,0.45);
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+  #count-bubble.pop { animation: pop 0.22s ease; }
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+  #count-num { font-size: 26px; font-weight: 900; line-height: 1; }
+  #count-label { font-size: 11px; font-weight: 600; opacity: 0.85; }
+
+  /* ── SCATTER AREA ── */
+  #scatter-area {
+    flex: 1;
+    position: relative;
+    background: rgba(255,255,255,0.55);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    touch-action: manipulation;
+    backdrop-filter: blur(4px);
+  }
+
+  .emoji-item {
+    position: absolute;
+    font-size: clamp(38px, 8vw, 52px);
+    cursor: pointer;
+    user-select: none;
+    line-height: 1;
+    transition: transform 0.12s, opacity 0.25s;
+    touch-action: manipulation;
+    will-change: transform;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+  }
+  .emoji-item:active { transform: scale(1.3); }
+  .emoji-item.counted {
+    opacity: 0.18;
+    pointer-events: none;
+    transform: scale(0.7);
+  }
+  .num-badge {
+    position: absolute;
+    top: -8px; right: -10px;
+    background: var(--orange);
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    box-shadow: 0 2px 6px rgba(255,107,53,0.5);
+  }
+  .emoji-item.counted .num-badge { display: flex; }
+
+  /* ── GUIDE ── */
+  #guide-text {
+    text-align: center;
+    font-size: clamp(13px, 3.2vw, 16px);
+    color: var(--muted);
+    font-weight: 600;
+    min-height: 20px;
+  }
+
+  /* ── ANSWER BUTTONS ── */
+  #answer-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ans-btn {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 900;
+    padding: 10px 0;
+    width: clamp(58px, 16vw, 72px);
+    border-radius: 16px;
+    border: 3px solid transparent;
+    background: white;
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+  }
+  .ans-btn:active { transform: scale(0.94); }
+  .ans-btn.correct { background: #d4f7dc; border-color: #6BCB77; color: #2d7a3c; }
+  .ans-btn.wrong   { background: #ffe0e0; border-color: #ff6b6b; color: #b02020; }
+
+  /* ── FEEDBACK ── */
+  #feedback {
+    text-align: center;
+    font-size: clamp(17px, 4.5vw, 22px);
+    font-weight: 800;
+    min-height: 28px;
+    transition: opacity 0.2s;
+  }
+  #feedback.ok  { color: #2d7a3c; }
+  #feedback.bad { color: #b02020; }
+
+  /* ── BOTTOM BAR ── */
+  #bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #score-bar { display: flex; gap: 3px; flex-wrap: wrap; max-width: 60%; }
+  .star { font-size: 20px; line-height: 1; }
+
+  #next-btn {
+    display: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(155,93,229,0.4);
+    touch-action: manipulation;
+    transition: transform 0.1s;
+  }
+  #next-btn:active { transform: scale(0.96); }
+
+  /* ── CONFETTI ── */
+  #confetti-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .cp {
+    position: absolute;
+    border-radius: 3px;
+    animation: cfall 1.8s ease-in forwards;
+  }
+  @keyframes cfall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity:1; }
+    100% { transform: translateY(110vh) rotate(900deg); opacity:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+<div class="cloud c3"></div>
+<div id="confetti-layer"></div>
+
+<div id="app">
+  <div id="header">
+    <div id="question-card">載入中...</div>
+    <div id="count-bubble">
+      <span id="count-num">0</span>
+      <span id="count-label">個</span>
+    </div>
+  </div>
+
+  <div id="scatter-area"></div>
+
+  <div id="guide-text">找找看，點每一個來數數 👆</div>
+  <div id="answer-row"></div>
+  <div id="feedback"></div>
+
+  <div id="bottom-bar">
+    <div id="score-bar"></div>
+    <button id="next-btn">下一題 ✨</button>
+  </div>
+</div>
+
+<script>
+const items = [
+  {name:"蘋果",  emoji:"🍎"},
+  {name:"香蕉",  emoji:"🍌"},
+  {name:"草莓",  emoji:"🍓"},
+  {name:"貓咪",  emoji:"🐱"},
+  {name:"小狗",  emoji:"🐶"},
+  {name:"小雞",  emoji:"🐥"},
+  {name:"魚",    emoji:"🐟"},
+  {name:"星星",  emoji:"⭐"},
+  {name:"氣球",  emoji:"🎈"},
+  {name:"花花",  emoji:"🌸"},
+];
+
+const chNum = ["","一","二","三","四","五","六","七","八","九","十",
+               "十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"];
+
+let currentItem, currentCount, clicked, answered, score=0, total=0;
+const AC = new AudioContext();
+
+function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+/* ── AUDIO ── */
+function beep(freq, dur, vol=0.5, type='sine'){
+  const o = AC.createOscillator();
+  const g = AC.createGain();
+  o.connect(g); g.connect(AC.destination);
+  o.frequency.value = freq;
+  o.type = type;
+  g.gain.setValueAtTime(vol, AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+  o.start(AC.currentTime);
+  o.stop(AC.currentTime + dur);
+}
+
+function playClick(){
+  beep(880, 0.08, 0.3, 'triangle');
+}
+
+function speak(text){
+  if(!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-TW';
+  u.rate = 0.82;
+  u.pitch = 1.1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+function playCorrect(){
+  const t = AC.currentTime;
+
+  // ── 1. 叮咚上行音階 (電視搶答) ──
+  const fanfare = [523.25, 659.25, 783.99, 1046.5, 1318.5]; // C5 E5 G5 C6 E6
+  fanfare.forEach((f, i) => {
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'sine'; o.frequency.value = f;
+    const st = t + i * 0.10;
+    g.gain.setValueAtTime(0, st);
+    g.gain.linearRampToValueAtTime(0.5, st + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, st + 0.30);
+    o.start(st); o.stop(st + 0.32);
+  });
+
+  // ── 2. 鈴聲和弦 (高頻三和弦叮!) ──
+  [2093, 2637, 3136].forEach((f, i) => {        // C7 E7 G7
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'triangle'; o.frequency.value = f;
+    const st = t + 0.50 + i * 0.04;
+    g.gain.setValueAtTime(0, st);
+    g.gain.linearRampToValueAtTime(0.30, st + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, st + 0.55);
+    o.start(st); o.stop(st + 0.58);
+  });
+
+  // ── 3. 鼓聲節拍 (bass drum × 3) ──
+  [0.55, 0.70, 0.82].forEach(delay => {
+    const buf = AC.createBuffer(1, AC.sampleRate * 0.12, AC.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(AC.sampleRate*0.04));
+    const src = AC.createBufferSource(), g = AC.createGain();
+    const filt = AC.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 180;
+    src.buffer = buf;
+    src.connect(filt); filt.connect(g); g.connect(AC.destination);
+    g.gain.setValueAtTime(1.8, t + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.10);
+    src.start(t + delay); src.stop(t + delay + 0.12);
+  });
+
+  // ── 4. 歡呼掌聲 (白噪音短爆) ──
+  [0.58, 0.68, 0.77, 0.86].forEach(delay => {
+    const buf = AC.createBuffer(1, AC.sampleRate * 0.06, AC.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(AC.sampleRate*0.025));
+    const src = AC.createBufferSource(), g = AC.createGain();
+    const filt = AC.createBiquadFilter();
+    filt.type = 'highpass'; filt.frequency.value = 2000;
+    src.buffer = buf;
+    src.connect(filt); filt.connect(g); g.connect(AC.destination);
+    g.gain.setValueAtTime(2.2, t + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.06);
+    src.start(t + delay); src.stop(t + delay + 0.07);
+  });
+
+  // ── 5. 尾聲叮咚下行 ──
+  [[1318.5, 0.95], [1046.5, 1.12], [783.99, 1.26]].forEach(([f, delay]) => {
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t + delay);
+    g.gain.linearRampToValueAtTime(0.35, t + delay + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.45);
+    o.start(t + delay); o.stop(t + delay + 0.48);
+  });
+}
+
+function playWrong(){
+  const t = AC.currentTime;
+  [300, 220].forEach((f, i) => {
+    const o = AC.createOscillator();
+    const g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'sawtooth';
+    o.frequency.value = f;
+    const st = t + i * 0.2;
+    g.gain.setValueAtTime(0.3, st);
+    g.gain.exponentialRampToValueAtTime(0.001, st + 0.25);
+    o.start(st); o.stop(st + 0.28);
+  });
+}
+
+/* ── PLACE EMOJIS ── */
+function noOverlap(positions, x, y, size){
+  for(const p of positions){
+    const dx=p.x-x, dy=p.y-y;
+    if(Math.sqrt(dx*dx+dy*dy) < size) return false;
+  }
+  return true;
+}
+
+function placeEmojis(){
+  const area = document.getElementById("scatter-area");
+  area.innerHTML = "";
+  const W = area.clientWidth  || 360;
+  const H = area.clientHeight || 260;
+  const emojiSize = Math.min(52, W * 0.12);
+  const pad = 14;
+  const positions = [];
+
+  for(let i=0;i<currentCount;i++){
+    let x, y, ok=false;
+    for(let t=0;t<300&&!ok;t++){
+      x = rand(pad, W - emojiSize - pad);
+      y = rand(pad, H - emojiSize - pad);
+      ok = noOverlap(positions, x+emojiSize/2, y+emojiSize/2, emojiSize+6);
+    }
+    positions.push({x:x+emojiSize/2, y:y+emojiSize/2});
+
+    const el = document.createElement("span");
+    el.className = "emoji-item";
+    el.style.left = x+"px";
+    el.style.top  = y+"px";
+    el.style.fontSize = emojiSize+"px";
+    el.dataset.idx = i;
+    el.innerHTML = currentItem.emoji + '<span class="num-badge">'+(i+1)+'</span>';
+    el.addEventListener("pointerdown", onEmojiClick, {passive:true});
+    area.appendChild(el);
+  }
+}
+
+function onEmojiClick(e){
+  if(answered) return;
+  const el = e.currentTarget;
+  if(el.classList.contains("counted")) return;
+  el.classList.add("counted");
+  clicked++;
+  playClick();
+
+  const bubble = document.getElementById("count-bubble");
+  document.getElementById("count-num").textContent = clicked;
+  bubble.classList.remove("pop");
+  void bubble.offsetWidth;
+  bubble.classList.add("pop");
+
+  const n = clicked;
+  setTimeout(() => speak(chNum[n]), 120);
+
+  const rem = currentCount - clicked;
+  if(rem === 0){
+    document.getElementById("guide-text").textContent = "數完了！現在選選看答案吧 ✨";
+  } else {
+    document.getElementById("guide-text").textContent =
+      "還有 " + rem + " 個！繼續找找看 👆";
+  }
+}
+
+/* ── ANSWER ── */
+function buildAnswerButtons(){
+  const box = document.getElementById("answer-row");
+  box.innerHTML = "";
+  const opts = new Set([currentCount]);
+  let tries = 0;
+  while(opts.size < 4 && tries < 500){
+    opts.add(rand(Math.max(1, currentCount-4), Math.min(20, currentCount+4)));
+    tries++;
+  }
+  Array.from(opts).sort((a,b)=>a-b).forEach(n=>{
+    const b = document.createElement("button");
+    b.className = "ans-btn";
+    b.textContent = n;
+    b.addEventListener("pointerdown", ()=>onAnswer(n,b), {passive:true});
+    box.appendChild(b);
+  });
+}
+
+function onAnswer(n, btn){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll(".ans-btn").forEach(b=>{
+    if(parseInt(b.textContent)===currentCount) b.classList.add("correct");
+  });
+
+  const fb = document.getElementById("feedback");
+  if(n===currentCount){
+    btn.classList.add("correct");
+    fb.textContent = "🎉 答對了！好棒棒！";
+    fb.className = "ok";
+    score++;
+    playCorrect();
+    launchConfetti();
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = "再數數看喔！是 "+currentCount+" 個！";
+    fb.className = "bad";
+    playWrong();
+    speak("再試試看！");
+  }
+  renderScore();
+  document.getElementById("next-btn").style.display = "inline-block";
+}
+
+/* ── SCORE ── */
+function renderScore(){
+  const bar = document.getElementById("score-bar");
+  bar.innerHTML = "";
+  for(let i=0;i<total;i++){
+    const s=document.createElement("span");
+    s.className="star";
+    s.textContent = i<score?"⭐":"☆";
+    bar.appendChild(s);
+  }
+}
+
+/* ── CONFETTI ── */
+function launchConfetti(){
+  const area = document.getElementById("confetti-layer");
+  const cols = ["#FF6B35","#FFD93D","#6BCB77","#00BBF9","#F15BB5","#9B5DE5","#ff4444","#ffffff"];
+  const shapes = ["rect","circle","star"];
+
+  function makePiece(delay){
+    const el = document.createElement("div");
+    const shape = shapes[rand(0, shapes.length-1)];
+    const color = cols[rand(0, cols.length-1)];
+    const size  = rand(8, 16);
+    const left  = rand(2, 98);
+    const dur   = (1400 + rand(0, 800)) / 1000;
+    const rot   = rand(0, 360);
+
+    el.style.cssText = `
+      position:absolute;
+      left:${left}%;
+      top:-20px;
+      width:${size}px;
+      height:${shape==='rect'?rand(6,12):size}px;
+      background:${color};
+      border-radius:${shape==='circle'?'50%':'3px'};
+      animation: cfall ${dur}s ease-in ${delay}s forwards;
+      transform: rotate(${rot}deg);
+    `;
+    if(shape==='star'){
+      el.style.background = 'transparent';
+      el.style.fontSize = size+'px';
+      el.style.lineHeight = '1';
+      el.textContent = '★';
+      el.style.color = color;
+      el.style.width = 'auto';
+      el.style.height = 'auto';
+    }
+    area.appendChild(el);
+    setTimeout(() => el.remove(), (dur + delay + 0.3) * 1000);
+  }
+
+  // 第一波：立即爆發 80 片
+  for(let i=0;i<80;i++) makePiece(rand(0,60)/100);
+  // 第二波：0.4秒後再補 50 片
+  setTimeout(()=>{ for(let i=0;i<50;i++) makePiece(rand(0,50)/100); }, 400);
+  // 第三波：0.9秒後收尾 30 片
+  setTimeout(()=>{ for(let i=0;i<30;i++) makePiece(rand(0,40)/100); }, 900);
+}
+
+/* ── NEXT ── */
+function nextQuestion(){
+  // unlock AudioContext on first interaction
+  if(AC.state==="suspended") AC.resume();
+
+  currentItem  = items[rand(0, items.length-1)];
+  currentCount = rand(1, 20);
+  clicked      = 0;
+  answered     = false;
+  total++;
+
+  document.getElementById("question-card").textContent =
+    "現在有幾個" + currentItem.name + "？一起數數看！";
+  document.getElementById("count-num").textContent = "0";
+  document.getElementById("guide-text").textContent = "找找看，點每一個來數數 👆";
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("feedback").className = "";
+  document.getElementById("next-btn").style.display = "none";
+
+  placeEmojis();
+  buildAnswerButtons();
+  renderScore();
+}
+
+document.getElementById("next-btn").addEventListener("pointerdown", nextQuestion, {passive:true});
+nextQuestion();
+</script>
+</body>
+</html>
