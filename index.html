@@ -3,128 +3,661 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ㄅㄆㄇ 圖像百科 🥇</title>
+    <meta name="theme-color" content="#ff6b9d">
+    <title>ㄅㄆㄇ 注音學習樂園 🌈</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; user-select: none; }
-        .container { display: flex; flex-wrap: wrap; justify-content: center; max-width: 850px; margin: 0 auto; }
-        .box { 
-            width: 75px; height: 75px; line-height: 75px; 
-            margin: 8px; background: #fff; border: 3px solid #ff7675; 
-            border-radius: 15px; font-size: 35px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 0 #fab1a0; transition: 0.1s;
+        :root {
+            --c1: #ff6b9d; --c2: #ffd93d; --c3: #6bcbf7; --c4: #a8e063;
+            --shadow: 0 6px 0;
         }
-        .box:active { transform: translateY(3px); box-shadow: 0 1px 0 #fab1a0; }
-        #pop { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.92); display: none; flex-direction: column; 
-            align-items: center; justify-content: center; color: #fff; z-index: 999;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            background: #fffbf0;
+            background-image: radial-gradient(circle at 20% 20%, #ffe4f0 0%, transparent 40%),
+                              radial-gradient(circle at 80% 80%, #e4f4ff 0%, transparent 40%);
+            min-height: 100vh;
+            padding: 20px;
+            user-select: none;
         }
-        #p-img { width: 260px; height: 260px; margin: 20px; border-radius: 20px; background: white; padding: 15px; object-fit: contain; }
-        #p-emoji { font-size: 160px; display: none; margin: 20px; }
-        .word { font-size: 65px; font-weight: bold; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+
+        header {
+            text-align: center;
+            padding: 10px 0 24px;
+        }
+        header h1 {
+            font-size: clamp(26px, 6vw, 42px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b9d, #ff9a3c, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-shadow: none;
+        }
+        header p {
+            font-size: 15px;
+            color: #b5a4c0;
+            margin-top: 6px;
+        }
+
+        .section-label {
+            width: 100%;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #ccc;
+            padding: 10px 8px 4px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 10px;
+        }
+
+        .group-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 4px 0;
+        }
+
+        .box {
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 18px;
+            font-size: 32px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            position: relative;
+            border: none;
+        }
+        .box.sheng {
+            box-shadow: var(--shadow) #f4a0bd;
+            border-top: 3px solid var(--c1);
+            border-left: 3px solid var(--c1);
+        }
+        .box.yun {
+            box-shadow: var(--shadow) #b5d96b;
+            border-top: 3px solid #8ec63f;
+            border-left: 3px solid #8ec63f;
+        }
+        .box.jie {
+            box-shadow: var(--shadow) #7ab8d6;
+            border-top: 3px solid var(--c3);
+            border-left: 3px solid var(--c3);
+        }
+        .box:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #ddd !important;
+        }
+        .box::after {
+            content: attr(data-hint);
+            position: absolute;
+            bottom: -18px;
+            font-size: 9px;
+            color: #bbb;
+            font-weight: 700;
+        }
+
+        /* Popup */
+        #pop {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 5, 30, 0.88);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+        #pop.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+
+        #pop-card {
+            background: #fff;
+            border-radius: 32px;
+            padding: 30px 40px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 360px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        #p-symbol {
+            position: absolute;
+            top: 16px;
+            left: 22px;
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--c1);
+        }
+
+        #close-btn {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        #close-btn:hover { background: #ffe0ed; }
+
+        #p-emoji {
+            font-size: 110px;
+            line-height: 1.1;
+            margin: 10px 0;
+            transition: transform 0.2s;
+        }
+        #p-emoji.bounce {
+            animation: bounce 0.4s ease;
+        }
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.15); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+
+        #p-word {
+            font-size: 54px;
+            font-weight: 900;
+            color: #2d1b4e;
+            letter-spacing: 3px;
+            margin-top: 4px;
+        }
+
+        #p-pinyin {
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        .pop-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pop-btn {
+            padding: 11px 22px;
+            border-radius: 50px;
+            border: none;
+            font-family: 'Nunito', sans-serif;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 4px 0;
+        }
+        .pop-btn:active { transform: translateY(3px); box-shadow: 0 1px 0; }
+        .btn-replay {
+            background: var(--c2);
+            color: #7a5a00;
+            box-shadow-color: #c9a800;
+            box-shadow: 0 4px 0 #c9a800;
+        }
+        .btn-next {
+            background: var(--c1);
+            color: #fff;
+            box-shadow: 0 4px 0 #c04070;
+        }
+
+        .dot-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 14px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: background 0.2s;
+        }
+        .dot.active { background: var(--c1); }
+
+        .group-title {
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            padding: 16px 0 6px;
+            color: #c0b0cc;
+        }
+
+        .divider {
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #eee, transparent);
+            margin: 8px auto;
+        }
     </style>
 </head>
 <body>
 
-    <h1 style="color:#d63031">ㄅㄆㄇ 圖像百科 🥇</h1>
-    <p>全名詞發音校正完畢！這次絕對精確！</p>
+<header>
+    <h1>🌈 ㄅㄆㄇ 注音樂園</h1>
+    <p>點點看，認識注音符號！</p>
+</header>
 
-    <div class="container" id="main"></div>
+<div class="container" id="main"></div>
 
-    <div id="pop" onclick="this.style.display='none'; window.speechSynthesis.cancel();">
-        <div id="p-symbol" style="font-size: 40px; color: #ffadad; margin-bottom: 5px;"></div>
-        <img id="p-img" src="" onerror="showEmojiBackup()">
-        <div id="p-emoji"></div>
-        <div id="p-word" class="word"></div>
-        <p style="margin-top:20px; color:#ccc;">點擊畫面關閉</p>
+<div id="pop">
+    <div id="pop-card">
+        <div id="p-symbol"></div>
+        <button id="close-btn" onclick="closePopup()">✕</button>
+        <div id="p-emoji">🎈</div>
+        <div id="p-word">文字</div>
+        <div id="p-pinyin"></div>
+        <div class="dot-row" id="dot-row"></div>
+        <div class="pop-actions">
+            <button class="pop-btn btn-replay" onclick="replayAudio()">🔊 再聽一次</button>
+            <button class="pop-btn btn-next" onclick="nextWord()">下一個 ➡️</button>
+        </div>
     </div>
+</div>
 
 <script>
-    var currentEmoji = "❓";
-    
-    var library = {
-        "ㄅ": [{n:"蘿蔔",g:"carrot",e:"🥕"},{n:"爆米花",g:"popcorn",e:"🍿"},{n:"杯子",g:"cup",e:"🥛"}],
-        "ㄆ": [{n:"皮球",g:"beach-ball",e:"⚽"},{n:"螃蟹",g:"crab",e:"🦀"},{n:"葡萄",g:"grapes",e:"🍇"}],
-        "ㄇ": [{n:"貓咪",g:"cat",e:"🐱"},{n:"帽子",g:"winter-hat",e:"👒"},{n:"麵包",g:"bread",e:"🍞"}],
-        "ㄈ": [{n:"飛機",g:"airplane",e:"✈️"},{n:"房子",g:"home",e:"🏠"},{n:"風扇",g:"fan",e:"🌀"}],
-        "ㄉ": [{n:"大象",g:"elephant",e:"🐘"},{n:"蛋糕",g:"cake",e:"🎂"},{n:"燈泡",g:"light-bulb",e:"💡"}],
-        "ㄊ": [{n:"兔子",g:"rabbit",e:"🐰"},{n:"糖果",g:"candy",e:"🍬"},{n:"太陽",g:"sun",e:"☀️"}],
-        "ㄋ": [{n:"牛奶",g:"milk-bottle",e:"🥛"},{n:"鳥兒",g:"bird",e:"🐦"},{n:"檸檬",g:"lemon",e:"🍋"}],
-        "ㄌ": [{n:"籃球",g:"basketball",e:"🏀"},{n:"老鼠",g:"mouse",e:"🐭"},{n:"辣椒",g:"chili-pepper",e:"🌶️"}],
-        "ㄍ": [{n:"西瓜",g:"watermelon",e:"🍉"},{n:"公車",g:"bus",e:"🚌"},{n:"鋼琴",g:"piano",e:"🎹"}],
-        "ㄎ": [{n:"恐龍",g:"dinosaur",e:"🦖"},{n:"口袋",g:"pocket",e:"👖"},{n:"筷子",g:"chopsticks",e:"🥢"}],
-        "ㄏ": [{n:"猴子",g:"monkey",e:"🐒"},{n:"河馬",g:"hippopotamus",e:"🦛"},{n:"火車",g:"train",e:"🚂"}],
-        "ㄐ": [{n:"雞蛋",g:"eggs",e:"🥚"},{n:"機器人",g:"robot",e:"🤖"},{n:"橘子",g:"orange",e:"🍊"}],
-        "ㄑ": [{n:"氣球",g:"balloons",e:"🎈"},{n:"青蛙",g:"frog",e:"🐸"},{n:"汽車",g:"car",e:"🚗"}],
-        "ㄒ": [{n:"香蕉",g:"banana",e:"🍌"},{n:"小鳥",g:"bird",e:"🐦"},{n:"洗澡盆",g:"bathtub",e:"🛁"}],
-        "ㄓ": [{n:"時鐘",g:"clock",e:"⏰"},{n:"蜘蛛",g:"spider",e:"🕷️"},{n:"桌子",g:"table",e:"🪑"}],
-        "ㄔ": [{n:"車子",g:"car",e:"🚗"},{n:"城堡",g:"castle",e:"🏰"},{n:"翅膀",g:"wings",e:"👼"}],
-        "ㄕ": [{n:"獅子",g:"lion",e:"🦁"},{n:"手指",g:"hand",e:"🖐️"},{n:"書本",g:"book",e:"📖"}],
-        "ㄖ": [{n:"熱狗",g:"hot-dog",e:"🌭"},{n:"日曆",g:"calendar",e:"📅"},{n:"肉乾",g:"steak",e:"🥩"}],
-        "ㄗ": [{n:"橘子",g:"orange",e:"🍊"},{n:"自行車",g:"bicycle",e:"🚲"},{n:"粽子",g:"rice-dumplings",e:"🍙"}],
-        "ㄘ": [{n:"草莓",g:"strawberry",e:"🍓"},{n:"彩虹",g:"rainbow",e:"🌈"},{n:"廁所",g:"toilet",e:"🚽"}],
-        "ㄙ": [{n:"松鼠",g:"squirrel",e:"🐿️"},{n:"絲巾",g:"scarf",e:"🧣"},{n:"掃帚",g:"broom",e:"🧹"}],
-        "ㄚ": [{n:"鴨子",g:"duck",e:"🦆"},{n:"牙刷",g:"toothbrush",e:"🪥"},{n:"沙發",g:"sofa",e:"🛋️"}],
-        "ㄛ": [{n:"波浪",g:"water-wave",e:"🌊"},{n:"菠菜",g:"spinach",e:"🥬"},{n:"鳥窩",g:"bird-nest",e:"🪹"}],
-        "ㄜ": [{n:"天鵝",g:"swan",e:"🦢"},{n:"可樂",g:"cola",e:"🥤"},{n:"惡魔",g:"devil",e:"😈"}],
-        "ㄝ": [{n:"葉子",g:"leaf",e:"🍃"},{n:"椰子",g:"coconut",e:"🥥"},{n:"靴子",g:"boot",e:"🥾"}],
-        "ㄞ": [{n:"白菜",g:"cabbage",e:"🥬"},{n:"大海",g:"sea-waves",e:"🌊"},{n:"奶瓶",g:"baby-bottle",e:"🍼"}],
-        "ㄟ": [{n:"杯子",g:"cup",e:"🥛"},{n:"飛機",g:"airplane",e:"✈️"},{n:"貝殼",g:"seashell",e:"🐚"}],
-        "ㄠ": [{n:"書包",g:"school-bag",e:"🎒"},{n:"貓咪",g:"cat",e:"🐱"},{n:"外套",g:"jacket",e:"🧥"}],
-        "ㄡ": [{n:"小狗",g:"dog",e:"🐶"},{n:"蝸牛",g:"snail",e:"🐌"},{n:"皮球",g:"beach-ball",e:"⚽"}],
-        "ㄢ": [{n:"雨傘",g:"umbrella",e:"☂️"},{n:"盤子",g:"plate",e:"🍽️"},{n:"雞蛋",g:"eggs",e:"🥚"}],
-        "ㄣ": [{n:"門鈴",g:"doorbell",e:"🔔"},{n:"森林",g:"forest",e:"🌳"},{n:"輪胎",g:"wheel",e:"🛞"}],
-        "ㄤ": [{n:"鋼琴",g:"piano",e:"🎹"},{n:"冰箱",g:"fridge",e:"🧊"},{n:"太陽",g:"sun",e:"☀️"}],
-        "ㄥ": [{n:"時鐘",g:"clock",e:"⏰"},{n:"紅燈",g:"traffic-light",e:"🔴"},{n:"風箏",g:"kite",e:"🪁"}],
-        "ㄦ": [{n:"耳朵",g:"ear",e:"👂"},{n:"兒子",g:"boy",e:"👦"},{n:"馬兒",g:"horse",e:"🐎"}],
-        "ㄧ": [{n:"衣服",g:"t-shirt",e:"👕"},{n:"椅子",g:"chair",e:"🪑"},{n:"蜜蜂",g:"bee",e:"🐝"}],
-        "ㄨ": [{n:"屋子",g:"home",e:"🏠"},{n:"烏龜",g:"turtle",e:"🐢"},{n:"玩具車",g:"toy-car",e:"🏎️"}],
-        "ㄩ": [{n:"魚兒",g:"fish",e:"🐟"},{n:"玉米",g:"corn",e:"🌽"},{n:"羽毛",g:"feather",e:"🪶"}]
-    };
+// ── 資料庫：每個注音 5 個詞，全用 emoji 顯示（不依賴外部圖片）──
+const library = {
+    "ㄅ": [
+        {n:"蘿蔔", e:"🥕", p:"luó bo"},
+        {n:"爆米花", e:"🍿", p:"bào mǐ huā"},
+        {n:"杯子", e:"🥤", p:"bēi zi"},
+        {n:"冰淇淋", e:"🍦", p:"bīng qí lín"},
+        {n:"蝙蝠", e:"🦇", p:"biān fú"}
+    ],
+    "ㄆ": [
+        {n:"皮球", e:"⚽", p:"pí qiú"},
+        {n:"螃蟹", e:"🦀", p:"páng xiè"},
+        {n:"葡萄", e:"🍇", p:"pú táo"},
+        {n:"蘋果", e:"🍎", p:"píng guǒ"},
+        {n:"啤酒", e:"🍺", p:"pí jiǔ"}
+    ],
+    "ㄇ": [
+        {n:"貓咪", e:"🐱", p:"māo mī"},
+        {n:"帽子", e:"🎩", p:"mào zi"},
+        {n:"麵包", e:"🍞", p:"miàn bāo"},
+        {n:"蘑菇", e:"🍄", p:"mó gū"},
+        {n:"芒果", e:"🥭", p:"máng guǒ"}
+    ],
+    "ㄈ": [
+        {n:"飛機", e:"✈️", p:"fēi jī"},
+        {n:"房子", e:"🏠", p:"fáng zi"},
+        {n:"風箏", e:"🪁", p:"fēng zhēng"},
+        {n:"番茄", e:"🍅", p:"fān qié"},
+        {n:"楓葉", e:"🍁", p:"fēng yè"}
+    ],
+    "ㄉ": [
+        {n:"大象", e:"🐘", p:"dà xiàng"},
+        {n:"蛋糕", e:"🎂", p:"dàn gāo"},
+        {n:"燈泡", e:"💡", p:"dēng pào"},
+        {n:"地球", e:"🌍", p:"dì qiú"},
+        {n:"釣魚", e:"🎣", p:"diào yú"}
+    ],
+    "ㄊ": [
+        {n:"兔子", e:"🐰", p:"tù zi"},
+        {n:"糖果", e:"🍬", p:"táng guǒ"},
+        {n:"太陽", e:"☀️", p:"tài yáng"},
+        {n:"桃子", e:"🍑", p:"táo zi"},
+        {n:"烏龜", e:"🐢", p:"tú bù (龜)"}
+    ],
+    "ㄋ": [
+        {n:"牛奶", e:"🍼", p:"niú nǎi"},
+        {n:"鳥兒", e:"🐦", p:"niǎo ér"},
+        {n:"檸檬", e:"🍋", p:"níng méng"},
+        {n:"牛", e:"🐮", p:"niú"},
+        {n:"泥巴", e:"🏖️", p:"ní bā"}
+    ],
+    "ㄌ": [
+        {n:"老虎", e:"🐯", p:"lǎo hǔ"},
+        {n:"老鼠", e:"🐭", p:"lǎo shǔ"},
+        {n:"辣椒", e:"🌶️", p:"là jiāo"},
+        {n:"梨子", e:"🍐", p:"lí zi"},
+        {n:"玫瑰", e:"🌹", p:"méi guī (lì)"}
+    ],
+    "ㄍ": [
+        {n:"西瓜", e:"🍉", p:"xī guā"},
+        {n:"公車", e:"🚌", p:"gōng chē"},
+        {n:"鋼琴", e:"🎹", p:"gāng qín"},
+        {n:"狗狗", e:"🐶", p:"gǒu gou"},
+        {n:"骨頭", e:"🦴", p:"gǔ tou"}
+    ],
+    "ㄎ": [
+        {n:"恐龍", e:"🦖", p:"kǒng lóng"},
+        {n:"筷子", e:"🥢", p:"kuài zi"},
+        {n:"口罩", e:"😷", p:"kǒu zhào"},
+        {n:"咖啡", e:"☕", p:"kā fēi"},
+        {n:"蝌蚪", e:"🐸", p:"kē dǒu"}
+    ],
+    "ㄏ": [
+        {n:"猴子", e:"🐒", p:"hóu zi"},
+        {n:"河馬", e:"🦛", p:"hé mǎ"},
+        {n:"火車", e:"🚂", p:"huǒ chē"},
+        {n:"蝴蝶", e:"🦋", p:"hú dié"},
+        {n:"漢堡", e:"🍔", p:"hàn bǎo"}
+    ],
+    "ㄐ": [
+        {n:"雞蛋", e:"🥚", p:"jī dàn"},
+        {n:"機器人", e:"🤖", p:"jī qì rén"},
+        {n:"橘子", e:"🍊", p:"jú zi"},
+        {n:"鯨魚", e:"🐋", p:"jīng yú"},
+        {n:"劍", e:"⚔️", p:"jiàn"}
+    ],
+    "ㄑ": [
+        {n:"氣球", e:"🎈", p:"qì qiú"},
+        {n:"青蛙", e:"🐸", p:"qīng wā"},
+        {n:"汽車", e:"🚗", p:"qì chē"},
+        {n:"球", e:"🏀", p:"qiú"},
+        {n:"企鵝", e:"🐧", p:"qǐ é"}
+    ],
+    "ㄒ": [
+        {n:"香蕉", e:"🍌", p:"xiāng jiāo"},
+        {n:"小熊", e:"🐻", p:"xiǎo xióng"},
+        {n:"西瓜", e:"🍉", p:"xī guā"},
+        {n:"蝦子", e:"🦐", p:"xiā zi"},
+        {n:"雪人", e:"⛄", p:"xuě rén"}
+    ],
+    "ㄓ": [
+        {n:"蜘蛛", e:"🕷️", p:"zhī zhū"},
+        {n:"時鐘", e:"⏰", p:"shí zhōng"},
+        {n:"桌子", e:"🪑", p:"zhuō zi"},
+        {n:"豬豬", e:"🐷", p:"zhū zhū"},
+        {n:"珍珠", e:"🦪", p:"zhēn zhū"}
+    ],
+    "ㄔ": [
+        {n:"城堡", e:"🏰", p:"chéng bǎo"},
+        {n:"蟲子", e:"🐛", p:"chóng zi"},
+        {n:"鏟子", e:"🪣", p:"chǎn zi"},
+        {n:"船", e:"⛵", p:"chuán"},
+        {n:"翅膀", e:"🦅", p:"chì bǎng"}
+    ],
+    "ㄕ": [
+        {n:"獅子", e:"🦁", p:"shī zi"},
+        {n:"書本", e:"📖", p:"shū běn"},
+        {n:"手", e:"🖐️", p:"shǒu"},
+        {n:"蛇", e:"🐍", p:"shé"},
+        {n:"珊瑚", e:"🪸", p:"shān hú"}
+    ],
+    "ㄖ": [
+        {n:"熱狗", e:"🌭", p:"rè gǒu"},
+        {n:"日曆", e:"📅", p:"rì lì"},
+        {n:"肉", e:"🥩", p:"ròu"},
+        {n:"熱氣球", e:"🎈", p:"rè qì qiú"},
+        {n:"燃火", e:"🔥", p:"rán huǒ"}
+    ],
+    "ㄗ": [
+        {n:"自行車", e:"🚲", p:"zì xíng chē"},
+        {n:"粽子", e:"🍙", p:"zòng zi"},
+        {n:"足球", e:"⚽", p:"zú qiú"},
+        {n:"鑽石", e:"💎", p:"zuàn shí"},
+        {n:"字", e:"📝", p:"zì"}
+    ],
+    "ㄘ": [
+        {n:"草莓", e:"🍓", p:"cǎo méi"},
+        {n:"彩虹", e:"🌈", p:"cǎi hóng"},
+        {n:"廁所", e:"🚽", p:"cè suǒ"},
+        {n:"蒼蠅", e:"🪰", p:"cāng yíng"},
+        {n:"菜籃", e:"🧺", p:"cài lán"}
+    ],
+    "ㄙ": [
+        {n:"松鼠", e:"🐿️", p:"sōng shǔ"},
+        {n:"掃帚", e:"🧹", p:"sào zhǒu"},
+        {n:"沙堡", e:"🏖️", p:"shā bǎo"},
+        {n:"西蘭花", e:"🥦", p:"xī lán huā"},
+        {n:"睡覺", e:"😴", p:"shuì jiào"}
+    ],
+    "ㄚ": [
+        {n:"鴨子", e:"🦆", p:"yā zi"},
+        {n:"牙刷", e:"🪥", p:"yá shuā"},
+        {n:"螞蟻", e:"🐜", p:"mǎ yǐ"},
+        {n:"啊！", e:"😮", p:"ā"},
+        {n:"阿嬤", e:"👵", p:"ā mā"}
+    ],
+    "ㄛ": [
+        {n:"鳥巢", e:"🪹", p:"niǎo cháo"},
+        {n:"菠菜", e:"🥬", p:"bō cài"},
+        {n:"哦！", e:"😲", p:"ō"},
+        {n:"波浪", e:"🌊", p:"bō làng"},
+        {n:"磨坊", e:"🏚️", p:"mó fāng"}
+    ],
+    "ㄜ": [
+        {n:"鵝", e:"🦢", p:"é"},
+        {n:"可樂", e:"🥤", p:"kě lè"},
+        {n:"餓", e:"😋", p:"è"},
+        {n:"蛾", e:"🦋", p:"é"},
+        {n:"惡魔", e:"😈", p:"è mó"}
+    ],
+    "ㄝ": [
+        {n:"葉子", e:"🍃", p:"yè zi"},
+        {n:"椰子", e:"🥥", p:"yē zi"},
+        {n:"靴子", e:"👢", p:"xuē zi"},
+        {n:"夜晚", e:"🌙", p:"yè wǎn"},
+        {n:"爺爺", e:"👴", p:"yé ye"}
+    ],
+    "ㄞ": [
+        {n:"白鶴", e:"🦩", p:"bái hè"},
+        {n:"奶瓶", e:"🍼", p:"nǎi píng"},
+        {n:"蜗牛", e:"🐌", p:"wō niú"},
+        {n:"螃蟹", e:"🦀", p:"páng xiè"},
+        {n:"海豚", e:"🐬", p:"hǎi tún"}
+    ],
+    "ㄟ": [
+        {n:"貝殼", e:"🐚", p:"bèi ké"},
+        {n:"飛機", e:"✈️", p:"fēi jī"},
+        {n:"妹妹", e:"👧", p:"mèi mei"},
+        {n:"美食", e:"🍣", p:"měi shí"},
+        {n:"鳥蛋", e:"🥚", p:"niǎo dàn"}
+    ],
+    "ㄠ": [
+        {n:"書包", e:"🎒", p:"shū bāo"},
+        {n:"外套", e:"🧥", p:"wài tào"},
+        {n:"貓頭鷹", e:"🦉", p:"māo tóu yīng"},
+        {n:"跑步", e:"🏃", p:"pǎo bù"},
+        {n:"炮竹", e:"🧨", p:"pào zhú"}
+    ],
+    "ㄡ": [
+        {n:"蝸牛", e:"🐌", p:"wō niú"},
+        {n:"骰子", e:"🎲", p:"tóu zi"},
+        {n:"猴子", e:"🐒", p:"hóu zi"},
+        {n:"狗狗", e:"🐶", p:"gǒu gou"},
+        {n:"牛", e:"🐄", p:"niú"}
+    ],
+    "ㄢ": [
+        {n:"雨傘", e:"☂️", p:"yǔ sǎn"},
+        {n:"盤子", e:"🍽️", p:"pán zi"},
+        {n:"山", e:"⛰️", p:"shān"},
+        {n:"柳橙", e:"🍊", p:"liǔ chéng"},
+        {n:"搬運", e:"📦", p:"bān yùn"}
+    ],
+    "ㄣ": [
+        {n:"門", e:"🚪", p:"mén"},
+        {n:"森林", e:"🌳", p:"sēn lín"},
+        {n:"蘑菇", e:"🍄", p:"mó gū"},
+        {n:"鉛筆", e:"✏️", p:"qiān bǐ"},
+        {n:"蜂鳥", e:"🐦", p:"fēng niǎo"}
+    ],
+    "ㄤ": [
+        {n:"糖果", e:"🍭", p:"táng guǒ"},
+        {n:"冰棒", e:"🍡", p:"bīng bàng"},
+        {n:"網球", e:"🎾", p:"wǎng qiú"},
+        {n:"太陽", e:"☀️", p:"tài yáng"},
+        {n:"香腸", e:"🌭", p:"xiāng cháng"}
+    ],
+    "ㄥ": [
+        {n:"時鐘", e:"🕐", p:"shí zhōng"},
+        {n:"風箏", e:"🪁", p:"fēng zhēng"},
+        {n:"紅燈", e:"🚦", p:"hóng dēng"},
+        {n:"燈籠", e:"🏮", p:"dēng lóng"},
+        {n:"蜻蜓", e:"🐛", p:"qīng tíng"}
+    ],
+    "ㄦ": [
+        {n:"耳朵", e:"👂", p:"ěr duǒ"},
+        {n:"兒子", e:"👦", p:"ér zi"},
+        {n:"馬兒", e:"🐎", p:"mǎ ér"},
+        {n:"二", e:"✌️", p:"èr"},
+        {n:"阿爾", e:"🎡", p:"ā ěr"}
+    ],
+    "ㄧ": [
+        {n:"衣服", e:"👕", p:"yī fu"},
+        {n:"椅子", e:"🪑", p:"yǐ zi"},
+        {n:"蜜蜂", e:"🐝", p:"mì fēng"},
+        {n:"一", e:"1️⃣", p:"yī"},
+        {n:"鸚鵡", e:"🦜", p:"yīng wǔ"}
+    ],
+    "ㄨ": [
+        {n:"屋子", e:"🏠", p:"wū zi"},
+        {n:"烏龜", e:"🐢", p:"wū guī"},
+        {n:"舞蹈", e:"💃", p:"wǔ dǎo"},
+        {n:"五", e:"5️⃣", p:"wǔ"},
+        {n:"霧", e:"🌫️", p:"wù"}
+    ],
+    "ㄩ": [
+        {n:"魚", e:"🐟", p:"yú"},
+        {n:"玉米", e:"🌽", p:"yù mǐ"},
+        {n:"羽毛", e:"🪶", p:"yǔ máo"},
+        {n:"月亮", e:"🌙", p:"yuè liang"},
+        {n:"雨", e:"🌧️", p:"yǔ"}
+    ]
+};
 
-    function showEmojiBackup() {
-        document.getElementById('p-img').style.display = 'none';
-        var em = document.getElementById('p-emoji');
-        em.style.display = 'block';
-        em.innerText = currentEmoji;
-    }
+const bopomofos = [
+    {group:"聲母", chars:["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ"]},
+    {group:"韻母", chars:["ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ"]},
+    {group:"介母", chars:["ㄧ","ㄨ","ㄩ"]}
+];
 
-    var bopomofos = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
-    var gBody = document.getElementById('main');
+const boxColors = [
+    "#ff6b9d","#ff9a3c","#ffd93d","#a8e063","#6bcbf7","#b48ce8","#ff8fab","#4ecdc4"
+];
 
-    window.onload = function() {
-        bopomofos.forEach(function(s) {
-            var box = document.createElement('div');
-            box.className = 'box';
+// ── State ──
+let currentSymbol = '';
+let currentWords = [];
+let currentIndex = 0;
+let currentUtterance = null;
+
+function buildUI() {
+    const main = document.getElementById('main');
+    bopomofos.forEach(({group, chars}) => {
+        const title = document.createElement('div');
+        title.className = 'group-title';
+        title.innerText = `— ${group} —`;
+        main.appendChild(title);
+
+        const row = document.createElement('div');
+        row.className = 'group-row';
+        chars.forEach((s, i) => {
+            const box = document.createElement('button');
+            box.className = 'box ' + (group === '聲母' ? 'sheng' : group === '韻母' ? 'yun' : 'jie');
             box.innerText = s;
-            box.onclick = function() {
-                var choices = library[s];
-                var pick = choices[Math.floor(Math.random() * choices.length)];
-                
-                currentEmoji = pick.e;
-                document.getElementById('p-symbol').innerText = s;
-                document.getElementById('p-word').innerText = pick.n;
-                
-                var img = document.getElementById('p-img');
-                var em = document.getElementById('p-emoji');
-                
-                img.style.display = 'block';
-                em.style.display = 'none';
-                
-                // 加時間戳記強制刷新
-                img.src = "https://img.icons8.com/color/400/" + pick.g + ".png?t=" + new Date().getTime();
-                
-                document.getElementById('pop').style.display = 'flex';
-                
-                window.speechSynthesis.cancel();
-                var msg = new SpeechSynthesisUtterance(pick.n);
-                msg.lang = 'zh-TW'; msg.rate = 0.7;
-                window.speechSynthesis.speak(msg);
-                window.speechSynthesis.speak(msg);
-            };
-            gBody.appendChild(box);
+            box.style.color = boxColors[i % boxColors.length];
+            box.onclick = () => openPopup(s);
+            row.appendChild(box);
         });
-    };
+        main.appendChild(row);
+    });
+}
+
+function openPopup(symbol) {
+    currentSymbol = symbol;
+    currentWords = [...library[symbol]].sort(() => Math.random() - 0.5); // shuffle
+    currentIndex = 0;
+    renderPopup();
+    document.getElementById('pop').className = 'show';
+}
+
+function renderPopup() {
+    const pick = currentWords[currentIndex];
+    document.getElementById('p-symbol').innerText = currentSymbol;
+    document.getElementById('p-word').innerText = pick.n;
+    document.getElementById('p-pinyin').innerText = pick.p;
+
+    const emojiEl = document.getElementById('p-emoji');
+    emojiEl.innerText = pick.e;
+    emojiEl.className = 'bounce';
+    setTimeout(() => emojiEl.className = '', 500);
+
+    // Dots
+    const dotRow = document.getElementById('dot-row');
+    dotRow.innerHTML = '';
+    currentWords.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === currentIndex ? ' active' : '');
+        dotRow.appendChild(dot);
+    });
+
+    speak(pick.n);
+}
+
+function nextWord() {
+    currentIndex = (currentIndex + 1) % currentWords.length;
+    renderPopup();
+}
+
+function replayAudio() {
+    speak(currentWords[currentIndex].n);
+}
+
+function speak(text) {
+    window.speechSynthesis.cancel();
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'zh-TW';
+    msg.rate = 0.75;
+    msg.pitch = 1.1;
+    window.speechSynthesis.speak(msg);
+}
+
+function closePopup() {
+    window.speechSynthesis.cancel();
+    document.getElementById('pop').className = '';
+    document.getElementById('pop').style.display = 'none';
+}
+
+// 點背景關閉
+document.getElementById('pop').addEventListener('click', function(e) {
+    if (e.target === this) closePopup();
+});
+
+// 鍵盤 Esc 關閉
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePopup();
+});
+
+buildUI();
 </script>
 </body>
 </html>
