@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ff6b9d">
+<title>5F Chacha House 🏠</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: linear-gradient(160deg, #fff0f8 0%, #fff9e0 50%, #e8f4ff 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* 漂浮裝飾泡泡 */
+  .bubble {
+    position: fixed;
+    border-radius: 50%;
+    opacity: 0.18;
+    pointer-events: none;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    0%   { transform: translateY(110vh) rotate(0deg); }
+    100% { transform: translateY(-20vh) rotate(360deg); }
+  }
+  .b1 { width:80px; height:80px; background:#ff6b9d; left:8%;  animation-duration:18s; animation-delay:0s; }
+  .b2 { width:50px; height:50px; background:#FFD93D; left:80%; animation-duration:14s; animation-delay:3s; }
+  .b3 { width:65px; height:65px; background:#9B5DE5; left:55%; animation-duration:22s; animation-delay:6s; }
+  .b4 { width:40px; height:40px; background:#00BBF9; left:25%; animation-duration:16s; animation-delay:9s; }
+  .b5 { width:90px; height:90px; background:#6BCB77; left:68%; animation-duration:26s; animation-delay:1s; }
+
+  /* 標題區 */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo {
+    font-size: clamp(52px, 16vw, 88px);
+    line-height: 1;
+    margin-bottom: 8px;
+    animation: bounce 2.5s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+
+  .title {
+    font-size: clamp(24px, 7vw, 40px);
+    font-weight: 900;
+    color: #d63384;
+    letter-spacing: 2px;
+    text-shadow: 0 3px 0 rgba(214,51,132,0.15);
+  }
+
+  .subtitle {
+    font-size: clamp(14px, 4vw, 18px);
+    color: #a0718a;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+
+  /* 遊戲卡片 */
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .game-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 24px;
+    border-radius: 28px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s;
+    touch-action: manipulation;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .game-card:active { transform: scale(0.96); }
+  .game-card:hover  { transform: translateY(-4px); }
+
+  .card-pink {
+    background: linear-gradient(135deg, #fff0f8, #ffe4f2);
+    box-shadow: 0 8px 32px rgba(255,107,157,0.22), 0 2px 8px rgba(255,107,157,0.12);
+    border: 2.5px solid rgba(255,107,157,0.25);
+  }
+  .card-pink:hover { box-shadow: 0 16px 48px rgba(255,107,157,0.32); }
+
+  .card-purple {
+    background: linear-gradient(135deg, #f3eeff, #e8dcff);
+    box-shadow: 0 8px 32px rgba(155,93,229,0.20), 0 2px 8px rgba(155,93,229,0.10);
+    border: 2.5px solid rgba(155,93,229,0.22);
+  }
+  .card-purple:hover { box-shadow: 0 16px 48px rgba(155,93,229,0.30); }
+
+  .card-icon {
+    font-size: clamp(48px, 14vw, 64px);
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+    transition: transform 0.18s;
+  }
+  .game-card:hover .card-icon { transform: scale(1.12) rotate(-5deg); }
+
+  .card-text { flex: 1; }
+
+  .card-title {
+    font-size: clamp(20px, 5.5vw, 26px);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .card-pink  .card-title { color: #c0236a; }
+  .card-purple .card-title { color: #6830c0; }
+
+  .card-desc {
+    font-size: clamp(13px, 3.5vw, 15px);
+    font-weight: 700;
+    opacity: 0.72;
+  }
+  .card-pink   .card-desc { color: #c0236a; }
+  .card-purple .card-desc { color: #6830c0; }
+
+  .card-arrow {
+    font-size: 24px;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+  .card-pink   .card-arrow { color: #d63384; }
+  .card-purple .card-arrow { color: #7c3aed; }
+
+  /* 頁尾 */
+  .footer {
+    margin-top: 40px;
+    font-size: 13px;
+    color: #c0a0b0;
+    font-weight: 700;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="bubble b1"></div>
+<div class="bubble b2"></div>
+<div class="bubble b3"></div>
+<div class="bubble b4"></div>
+<div class="bubble b5"></div>
+
+<div class="header">
+  <div class="logo">🏠</div>
+  <div class="title">Chacha House</div>
+  <div class="subtitle">選一個遊戲，一起來學習！</div>
+</div>
+
+<div class="cards">
+  <a class="game-card card-pink" href="./phonics.html">
+    <span class="card-icon">🔤</span>
+    <div class="card-text">
+      <div class="card-title">ㄅㄆㄇ 注音樂園</div>
+      <div class="card-desc">點點看，認識注音符號！</div>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+  <a class="game-card card-purple" href="./counting_game.html">
+    <span class="card-icon">🔢</span>
+    <div class="card-text">
+      <div class="card-title">數數遊戲</div>
+      <div class="card-desc">找一找，數出正確數量！</div>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+</div>
+
+<div class="footer">✨ 5F Chacha House — Papa Pollo 製作 ✨</div>
+
+</body>
+</html>
