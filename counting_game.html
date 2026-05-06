@@ -242,17 +242,32 @@
     0%   { transform: translateY(-10px) rotate(0deg); opacity:1; }
     100% { transform: translateY(110vh) rotate(900deg); opacity:0; }
   }
+  /* ── HOME BTN ── */
+  #home-btn {
+    background: rgba(255,255,255,0.85);
+    border: none;
+    border-radius: 14px;
+    padding: 8px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
+    touch-action: manipulation;
+    transition: transform 0.1s;
+  }
+  #home-btn:active { transform: scale(0.90); }
 </style>
 </head>
 <body>
 
-<div class="cloud c1"></div>
-<div class="cloud c2"></div>
-<div class="cloud c3"></div>
 <div id="confetti-layer"></div>
 
 <div id="app">
   <div id="header">
+    <a id="home-btn" href="./index.html">🏠</a>
     <div id="question-card">載入中...</div>
     <div id="count-bubble">
       <span id="count-num">0</span>
@@ -418,27 +433,40 @@ function noOverlap(positions, x, y, size){
 function placeEmojis(){
   const area = document.getElementById("scatter-area");
   area.innerHTML = "";
-  const W = area.clientWidth  || 360;
-  const H = area.clientHeight || 260;
-  const emojiSize = Math.min(52, W * 0.12);
-  const pad = 14;
+
+  // 用 getBoundingClientRect 確保拿到真實尺寸
+  const rect = area.getBoundingClientRect();
+  const W = Math.max(rect.width,  area.offsetWidth,  280);
+  const H = Math.max(rect.height, area.offsetHeight, 200);
+
+  // 手機上圖案小一點，數量多時縮得更小
+  const baseSize = Math.min(48, W * 0.11);
+  const emojiSize = currentCount > 15 ? Math.min(baseSize, 36) :
+                    currentCount > 10 ? Math.min(baseSize, 42) : baseSize;
+
+  const pad = 8;
+  const safeW = W - emojiSize - pad;
+  const safeH = H - emojiSize - pad;
   const positions = [];
 
   for(let i=0;i<currentCount;i++){
-    let x, y, ok=false;
-    for(let t=0;t<300&&!ok;t++){
-      x = rand(pad, W - emojiSize - pad);
-      y = rand(pad, H - emojiSize - pad);
-      ok = noOverlap(positions, x+emojiSize/2, y+emojiSize/2, emojiSize+6);
+    let x = pad, y = pad, ok=false;
+    for(let t=0;t<400&&!ok;t++){
+      x = rand(pad, Math.max(pad+1, safeW));
+      y = rand(pad, Math.max(pad+1, safeH));
+      ok = noOverlap(positions, x+emojiSize/2, y+emojiSize/2, emojiSize+4);
     }
+    // 強制夾在安全範圍內，防止超出
+    x = Math.max(pad, Math.min(x, safeW));
+    y = Math.max(pad, Math.min(y, safeH));
     positions.push({x:x+emojiSize/2, y:y+emojiSize/2});
 
     const el = document.createElement("span");
     el.className = "emoji-item";
-    el.style.left = x+"px";
-    el.style.top  = y+"px";
+    el.style.left     = x+"px";
+    el.style.top      = y+"px";
     el.style.fontSize = emojiSize+"px";
-    el.dataset.idx = i;
+    el.dataset.idx    = i;
     el.innerHTML = currentItem.emoji + '<span class="num-badge">'+(i+1)+'</span>';
     el.addEventListener("pointerdown", onEmojiClick, {passive:true});
     area.appendChild(el);
@@ -595,9 +623,9 @@ function nextQuestion(){
   document.getElementById("feedback").className = "";
   document.getElementById("next-btn").style.display = "none";
 
-  placeEmojis();
   buildAnswerButtons();
   renderScore();
+  requestAnimationFrame(() => requestAnimationFrame(() => placeEmojis()));
 }
 
 document.getElementById("next-btn").addEventListener("pointerdown", nextQuestion, {passive:true});
